@@ -1,0 +1,106 @@
+@using Known.Components
+@using AntDesign
+@inherits BaseForm<OrderInfo, OrderListInfo>
+
+<Tabs Animated>
+    <ChildContent>
+        <TabPane Key="BizInfo" Tab="订单信息">
+            <AntForm TItem="OrderInfo" Form="Model" ShowAction>
+                <ChildContent>
+                    <AntRow>
+                        <DataItem Span="6" Label="订单号">
+                            <AntInput @bind-Value="@context.OrderNo" Disabled="true" />
+                        </DataItem>
+                        <DataItem Span="6" Label="单据编号">
+                            <AntInput @bind-Value="@context.CustomerNo" />
+                        </DataItem>
+                        <DataItem Span="6" Label="订单日期">
+                            <AntDatePicker @bind-Value="@context.OrderDate" />
+                        </DataItem>
+                        <DataItem Span="6" Label="客户名称">
+                            <SelectPartner @bind-Value="@context.CustomerName" Type="@PartnerType.Customer" />
+                        </DataItem>
+                    </AntRow>
+                    <AntRow>
+                        <DataItem Span="8" Label="联系人">
+                            <AntInput @bind-Value="@context.Contact" />
+                        </DataItem>
+                        <DataItem Span="8" Label="电话">
+                            <AntInput @bind-Value="@context.Phone" />
+                        </DataItem>
+                        <DataItem Span="8" Label="交货地点">
+                            <AntInput @bind-Value="@context.Address" />
+                        </DataItem>
+                    </AntRow>
+                    <AntRow>
+                        <DataItem Span="24">
+                            <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:6px;">
+                                <KButton Name="添加行" OnClick="OnAddRow" />
+                            </div>
+                            <AntTable @ref="table" TItem="OrderListInfo" DataSource="ListItems" HidePagination ScrollY="280px">
+                                <ChildContent Context="ctx">
+                                    <TableColumn Title="存货编码" Width="100" Value="@ctx.GoodsCode">
+                                        <AntInput @bind-Value="@ctx.GoodsCode" />
+                                    </TableColumn>
+                                    <TableColumn Title="品名" Width="150" Value="@ctx.GoodsName">
+                                        <AntInput @bind-Value="@ctx.GoodsName" />
+                                    </TableColumn>
+                                    <TableColumn Title="规格" Width="120" Value="@ctx.Spec">
+                                        <AntInput @bind-Value="@ctx.Spec" />
+                                    </TableColumn>
+                                    <TableColumn Title="颜色" Width="80" Value="@ctx.Color">
+                                        <AntInput @bind-Value="@ctx.Color" />
+                                    </TableColumn>
+                                    <TableColumn Title="客户订单号" Width="110" Value="@ctx.CustomerOrderNo">
+                                        <AntInput @bind-Value="@ctx.CustomerOrderNo" />
+                                    </TableColumn>
+                                    <TableColumn Title="单位" Width="70" Value="@ctx.Unit">
+                                        <AntInput @bind-Value="@ctx.Unit" />
+                                    </TableColumn>
+                                    <TableColumn Title="订购数量" Width="90" Align="ColumnAlign.Right" Value="@ctx.Qty">
+                                        <AntDouble @bind-Value="@ctx.Qty" Style="width:100%" />
+                                    </TableColumn>
+                                    <TableColumn Title="单价" Width="90" Align="ColumnAlign.Right" Value="@ctx.Price">
+                                        <AntDouble @bind-Value="@ctx.Price" Style="width:100%" />
+                                    </TableColumn>
+                                    <TableColumn Title="金额" Width="100" Align="ColumnAlign.Right" Value="@ctx.Amount">
+                                        <AntDouble @bind-Value="@ctx.Amount" Style="width:100%" />
+                                    </TableColumn>
+                                    <TableColumn Title="交货日期" Width="100" Value="@ctx.DeliveryDate">
+                                        <AntInput @bind-Value="@ctx.DeliveryDate" />
+                                    </TableColumn>
+                                    <TableColumn Title="备注" Width="140" Value="@ctx.Note">
+                                        <AntInput @bind-Value="@ctx.Note" />
+                                    </TableColumn>
+                                </ChildContent>
+                            </AntTable>
+                        </DataItem>
+                    </AntRow>
+                    <AntRow>
+                        <DataItem Span="24" Label="备注(环保要求等)">
+                            <AntTextArea @bind-Value="@context.Note" Rows="3" />
+                        </DataItem>
+                    </AntRow>
+                    <AntRow>
+                        <DataItem Span="12" Label="审核">
+                            <AntInput @bind-Value="@context.Auditor" />
+                        </DataItem>
+                        <DataItem Span="12" Label="制单">
+                            <AntInput @bind-Value="@context.Maker" />
+                        </DataItem>
+                    </AntRow>
+                </ChildContent>
+            </AntForm>
+        </TabPane>
+        <TabPane Key="Print" Tab="打印预览">
+            <div style="display:flex;gap:8px;margin-bottom:8px;justify-content:flex-end;">
+                <KButton Name="打印" OnClick="OnPrint" />
+            </div>
+            <div style="background:#f5f5f5;padding:12px;border-radius:6px;">
+                <div style="background:#fff;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.15);overflow:auto;">
+                    <OrderPrint Model="Model.Data" Lists="ListItems" />
+                </div>
+            </div>
+        </TabPane>
+    </ChildContent>
+</Tabs>

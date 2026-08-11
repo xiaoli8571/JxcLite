@@ -1,0 +1,16 @@
+﻿@page "/"
+@inherits BasePage
+
+<AntRow>
+    <AntCol Span="24">
+        <SpaceCard @ref="space" />
+    </AntCol>
+</AntRow>
+<AntRow Gutter="10">
+    <AntCol Span="14">
+        <ChartCard @ref="chart" Title="单量统计" />
+    </AntCol>
+    <AntCol Span="10">
+        <CommFuncCard @ref="func" />
+    </AntCol>
+</AntRow>

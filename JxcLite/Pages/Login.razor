@@ -1,0 +1,52 @@
+﻿@page "/login"
+@layout EmptyLayout
+@inherits LoginPage
+
+<div class="jxc-login">
+    <div class="jxc-dots-pattern"></div>
+    <div class="jxc-login-container">
+        <div class="jxc-login-brand">
+            <img src="_content/JxcLite/img/logo.png" />
+            <div class="jxc-login-title">@Language[AppConfig.AppName]</div>
+            <div class="jxc-login-subtitle">轻量高效 · 智慧管理</div>
+            <div class="jxc-login-features">
+                <span class="jxc-feature-tag"><span class="jxc-feature-icon">◆</span> 商品管理</span>
+                <span class="jxc-feature-tag"><span class="jxc-feature-icon">◆</span> 采购入库</span>
+                <span class="jxc-feature-tag"><span class="jxc-feature-icon">◆</span> 销售出库</span>
+                <span class="jxc-feature-tag"><span class="jxc-feature-icon">◆</span> 库存盘点</span>
+                <span class="jxc-feature-tag"><span class="jxc-feature-icon">◆</span> 财务核算</span>
+                <span class="jxc-feature-tag"><span class="jxc-feature-icon">◆</span> 统计报表</span>
+            </div>
+        </div>
+        <div class="jxc-login-form-panel">
+            <div class="jxc-login-form-header">
+                <div class="jxc-login-welcome">
+                    欢迎登录
+                    <small>请使用账号密码登录系统</small>
+                </div>
+                <div class="jxc-login-actions">
+                    @if (Config.App.IsLanguage)
+                    {
+                        <NavLanguage />
+                    }
+                    @if (Config.App.IsTheme)
+                    {
+                        <NavTheme />
+                    }
+                </div>
+            </div>
+            <Tabs Animated>
+                <TabPane Key="Account" Tab="@Language[Language.LoginWithAccount]">
+                    <LoginForm Model="Model" OnLogin="OnUserLogin" IsCaptcha="IsCaptcha" />
+                </TabPane>
+                @* <TabPane Key="QRCode" Tab="@Language[Language.LoginWithQRCode]">
+                    <div class="jxc-qrcode-wrapper">
+                        <p>@Language[Language.ScanCodeWithMobile]</p>
+                        <KQRCode Option="QrCode" />
+                    </div>
+                </TabPane> *@
+            </Tabs>
+        </div>
+    </div>
+    <div class="jxc-login-footer"><KFooter /></div>
+</div>

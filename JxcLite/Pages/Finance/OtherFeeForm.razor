@@ -1,0 +1,45 @@
+﻿@inherits BaseForm<OtherFeeInfo>
+
+<Tabs Animated>
+    <ChildContent>
+        <TabPane Key="BizInfo" Tab="单据信息">
+            <AntForm TItem="OtherFeeInfo" Form="Model" ShowAction>
+                <AntRow>
+                    <DataItem Span="8" Label="类型" Required>
+                        <AntRadioGroup @bind-Value="context.Type" Category="@nameof(FeeType)" ButtonStyle="RadioButtonStyle.Solid" />
+                    </DataItem>
+                    <DataItem Span="8" Label="费用编号" Required>
+                        <AntInput @bind-Value="context.FeeNo" Disabled />
+                    </DataItem>
+                </AntRow>
+                <AntRow>
+                    <DataItem Span="8" Label="发生金额" Required>
+                        <AntDouble @bind-Value="context.Amount" /> 元
+                    </DataItem>
+                    <DataItem Span="8" Label="发生日期" Required>
+                        <AntDatePicker @bind-Value="context.FeeDate" />
+                    </DataItem>
+                    <DataItem Span="8" Label="所属部门">
+                        <AntInput @bind-Value="context.Department" />
+                    </DataItem>
+                </AntRow>
+                <AntRow>
+                    <DataItem Span="24" Label="备注">
+                        <AntTextArea @bind-Value="context.Note" />
+                    </DataItem>
+                </AntRow>
+                <AntRow>
+                    <DataItem Span="24" Label="附件">
+                        <KUpload MultiFile Value="@context.Files" OnFilesChanged="OnFilesChangedAsync" />
+                    </DataItem>
+                </AntRow>
+            </AntForm>
+        </TabPane>
+        <TabPane Key="FlowLog" Tab="流程记录">
+            <FlowLogGrid BizId="@Model.Data.Id" />
+        </TabPane>
+    </ChildContent>
+    <TabBarExtraContentRight>
+        <KTag Text="@Model.Data.Status" />
+    </TabBarExtraContentRight>
+</Tabs>

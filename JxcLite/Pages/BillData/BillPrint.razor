@@ -1,0 +1,220 @@
+﻿<style>
+    /* 打印纸:横向 241mm 宽 × 139mm 长
+       边距:上 12.5mm,右 13.4mm,下 6mm,左 12.8mm */
+    @@page { size: 241mm 139mm landscape; margin: 12.5mm 13.4mm 6mm 12.8mm; }
+    .bill-print { font-size: 15px; font-family: "SimSun","宋体",serif; color:#000; }
+    /* 打印预览纸张外壳(编辑模式):灰底 + 整张纸 */
+    .paper-shell { background:#e8e8e8; padding:24px; display:flex; justify-content:center; overflow:auto; }
+    .paper-shell .paper { width:241mm; height:139mm; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.25); padding:12.5mm 13.4mm 6mm 12.8mm; box-sizing:border-box; flex:none; }
+    /* 打印模式(非编辑):不显示纸张外壳 */
+    .paper-shell.print-mode { background:none; padding:0; display:block; }
+    .paper-shell.print-mode .paper { width:auto; height:auto; padding:0; box-shadow:none; background:transparent; }
+    /* 标题行:公司名(左,20号)+ 送货单(居中,30号) */
+    .bill-print .title-row { display: flex; align-items: center; justify-content: space-between; position: relative; padding: 3px 0; margin-bottom: 8px; }
+    .bill-print .title-row .factory-name { font-size: 20px; font-weight: bold; letter-spacing: 0; white-space: nowrap; }
+    .bill-print .title-row .doc-title { font-size: 30px; font-weight: bold; letter-spacing: 4px; position: absolute; left: 50%; transform: translateX(-50%); }
+    /* 送货单标题:30号宋体 */
+    .bill-print .title { font-size: 30px; font-weight: bold; text-align: center; letter-spacing: 4px; padding: 3px 0; }
+    /* 公司信息行:地址/电话/传真同一行 */
+    .bill-print .company-line { font-size: 15px; padding: 1px 0; text-align: center; }
+    .bill-print .company-line span { margin: 0 4px; }
+    /* 表格与上下内容之间留间距 */
+    .bill-print .company-line { margin-bottom: 10px; }
+    .bill-table { margin-top: 6px; }
+    .bill-print .note { padding: 2px 0; font-size: 15px; margin-top: 10px; }
+    .bill-print .center { text-align: center; }
+    .bill-print .right { text-align: right; }
+    .bill-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .bill-table th, .bill-table td { border: 1px solid #000; padding: 1px 3px; text-align: left; font-size: 15px; word-break: break-all; vertical-align: middle; }
+    .bill-table th { font-weight: bold; text-align: center; background: none; }
+    .bill-table .amount { text-align: right; }
+    .bill-print .sign { display: flex; justify-content: space-between; margin-top: 18px; font-size: 15px; }
+    .bill-print .sign div { text-align: center; }
+    .bill-print .edit-cell { width: 100%; border: none; outline: none; background: transparent; font-size: 15px; font-family: inherit; padding: 0; }
+    .bill-print .preview-mode .edit-cell { pointer-events: none; }
+    .bill-print .row-check { width: 16px; height: 16px; cursor: pointer; }
+    .bill-print .merged-row { background: #fafafa; }
+    .bill-print .merged-label { color: #999; font-size: 15px; margin-right: 8px; }
+    .bill-print .merge-tip { font-size: 15px; color: #888; }
+    /* 列宽调整条 */
+    .bill-print .width-bar { display: flex; gap: 4px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+    .bill-print .width-bar input { width: 44px; font-size: 15px; padding: 1px 2px; }
+    .bill-print .width-bar label { font-size: 15px; color: #666; }
+</style>
+
+@if (IsEditMode)
+{
+    <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="checkbox" id="cb_merge" @bind-value="AutoMerge" @bind-value:event="onchange" />
+        <label for="cb_merge">相同商品自动合并</label>
+        <button @onclick="OnMergeSelected" style="padding:2px 10px;">合并选中行</button>
+        <button @onclick="OnUnmergeAll" style="padding:2px 10px;">取消全部合并</button>
+        <span style="flex:1;"></span>
+        <button @onclick="OnSaveToForm" style="padding:2px 12px;">保存到单据</button>
+        <button @onclick="OnRequestPrint" style="padding:2px 12px;">打印</button>
+    </div>
+    <div class="merge-tip">* 勾选明细行后点「合并选中行」:该行合并成一个跨整行的大格子(可输入整段内容);点「取消全部合并」恢复。</div>
+    @if (!string.IsNullOrEmpty(MergeTip))
+    {
+        <div style="color:#ff4d4f;font-size:12px;margin-bottom:4px;">@MergeTip</div>
+    }
+    <div class="width-bar">
+        @for (var i = 0; i < ColWidths.Count; i++)
+        {
+            var index = i;
+            <label>@ColNames[i]</label>
+            <input type="number" min="2" max="30" step="0.5" value="@ColWidths[i]"
+                   @onchange="e => OnWidthChange(index, e.Value)" />
+        }
+        <label style="color:#1890ff;">合计:@TotalWidth%</label>
+    </div>
+}
+
+<div class="paper-shell @(IsEditMode ? "" : "print-mode")">
+<div class="paper">
+<div class="bill-print @(IsEditMode ? "edit-mode" : "preview-mode")">
+    <div class="title-row">
+        <span class="factory-name">@Model.Factory?.Name</span>
+        <span class="doc-title">送 货 单</span>
+    </div>
+    <div class="company-line">
+        <span>地址：@Model.Factory?.Address</span>
+        <span>电话：@Model.Factory?.Contact</span>
+    </div>
+
+    <table class="bill-table">
+        <colgroup>
+            @if (IsEditMode)
+            {
+                @for (var i = 0; i < ColWidths.Count; i++)
+                {
+                    <col style="width:@ColWidths[i].ToString(System.Globalization.CultureInfo.InvariantCulture)%" />
+                }
+            }
+            else
+            {
+                @for (var i = 1; i < ColWidths.Count; i++)
+                {
+                    <col style="width:@ColWidths[i].ToString(System.Globalization.CultureInfo.InvariantCulture)%" />
+                }
+            }
+        </colgroup>
+        <tr style="height:15.8pt;">
+            @if (IsEditMode)
+            {
+                <td>&nbsp;</td>
+            }
+            <td colspan="3">客户名称：<span class="field-text">@Model.PartnerName</span></td>
+            <td colspan="2">日期：<span class="field-text">@BillDateText</span></td>
+            <td colspan="2">结算币别：<span class="field-text">@CurrencyText</span></td>
+            <td colspan="2">订单号：<span class="field-text">@Model.BillNo</span></td>
+        </tr>
+        <tr style="height:14.3pt;">
+            @if (IsEditMode)
+            {
+                <td>&nbsp;</td>
+            }
+            <td colspan="4">客户地址：<span class="field-text">@Model.PartnerAddress</span></td>
+            <td colspan="5">客户联系人：<span class="field-text">@Model.PartnerContact</span></td>
+        </tr>
+        <tr style="height:22.8pt;">
+            @if (IsEditMode)
+            {
+                <th>选</th>
+            }
+            <th>序号</th>
+            <th>产品名称</th>
+            <th>规格</th>
+            <th>颜色</th>
+            <th>单位</th>
+            <th>件数</th>
+            <th>数量</th>
+            <th>单价</th>
+            <th>金额</th>
+        </tr>
+        @foreach (var line in RenderLines)
+        {
+            <tr class="@(IsRowMerged(line) ? "merged-row" : "")" style="height:18.8pt;">
+                @if (IsEditMode)
+                {
+                    <td class="center">
+                        <input type="checkbox" class="row-check"
+                               checked="@IsSelected(line)"
+                               @onchange="e => OnRowCheckChanged(line, e.Value is bool b && b)" />
+                    </td>
+                }
+                @if (IsRowMerged(line))
+                {
+                    // 整行合并:跨所有列显示为一个大格子
+                    var row = line.Rows[0];
+                    var colspan = IsEditMode ? ColWidths.Count : ColWidths.Count - 1;
+                    <td colspan="@colspan" style="text-align:left;padding:6px;">
+                        @if (IsEditMode)
+                        {
+                            <input class="edit-cell" @bind="row.MergeContent" placeholder="在此输入整行内容" />
+                        }
+                        else
+                        {
+                            @SafeHtmlEncode(row.MergeContent)
+                        }
+                    </td>
+                }
+                else if (IsEditMode && !line.IsMerged)
+                {
+                    var row = line.Rows[0];
+                    <td class="center">@row.SeqNo</td>
+                    <td>@row.Name</td>
+                    <td>@row.Model</td>
+                    <td>@row.Color</td>
+                    <td class="center">@row.Unit</td>
+                    <td class="center">@row.PkgQty</td>
+                    <td class="right">@row.Qty</td>
+                    <td class="right">@row.Price?.ToString("F2")</td>
+                    <td class="amount">@row.Amount?.ToString("F2")</td>
+                }
+                else
+                {
+                    <td class="center">@line.SeqNoText</td>
+                    <td>@line.NameHtml</td>
+                    <td>@line.ModelHtml</td>
+                    <td>@line.ColorHtml</td>
+                    <td class="center">@line.UnitText</td>
+                    <td class="center">@line.PkgQtyText</td>
+                    <td class="right">@line.QtyText</td>
+                    <td class="right">@line.PriceText</td>
+                    <td class="amount">@line.AmountText</td>
+                }
+            </tr>
+        }
+        @for (var i = 0; i < EmptyRows; i++)
+        {
+            <tr style="height:18.8pt;">
+                @if (IsEditMode)
+                {
+                    <td>&nbsp;</td>
+                }
+                <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+                <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+            </tr>
+        }
+    </table>
+
+    <div class="note">备注：@Model.Factory?.Note</div>
+
+    <div class="sign">
+        <div>
+            制单人：
+            @if (IsEditMode)
+            {
+                <input class="edit-cell" style="width:80px;" @bind="Model.PrintUser" placeholder="@Model.CreateBy" />
+            }
+            else
+            {
+                <span>@(string.IsNullOrWhiteSpace(Model.PrintUser) ? Model.CreateBy : Model.PrintUser)</span>
+            }
+        </div>
+        <div>客户签字或盖章：<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    </div>
+</div>
+</div>
+</div>

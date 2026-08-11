@@ -1,0 +1,9 @@
+﻿global using System.ComponentModel;
+global using Known;
+global using Known.Blazor;
+global using Known.Data;
+global using Known.Extensions;
+global using Microsoft.AspNetCore.Components;
+global using Microsoft.AspNetCore.Components.WebView;
+global using Microsoft.AspNetCore.Components.WebView.WindowsForms;
+global using Microsoft.Extensions.DependencyInjection;

@@ -1,0 +1,13 @@
+<Solution>
+    <Folder Name="/Document/">
+        <File Path=".gitattributes" />
+        <File Path=".gitignore" />
+        <File Path="README.md" />
+        <File Path="Document/01-系统需求.md" />
+        <File Path="Document/02-数据结构.md" />
+        <File Path="Document/03-框架搭建.md" />
+    </Folder>
+    <Project Path="JxcLite/JxcLite.csproj" />
+    <Project Path="JxcLite.Web/JxcLite.Web.csproj" />
+    <Project Path="JxcLite.WinForm/JxcLite.WinForm.csproj" />
+</Solution>

@@ -1,0 +1,29 @@
+﻿@inherits BaseComponent
+
+<KFlexSpace Style="padding:2px 16px;">
+    <KTitle Text="工厂列表" />
+    <div>
+        <KButton Icon="plus" Name="添加" OnClick="OnAdd" />
+        <KButton Icon="save" Name="保存" OnClick="OnSave" />
+    </div>
+</KFlexSpace>
+<AntTable TItem="FactoryInfo" DataSource="Items" HidePagination Style="padding:0 5px;">
+    <TableColumn Title="工厂简称" Width="120px">
+        <AntInput @bind-Value="@context.ShortName" />
+    </TableColumn>
+    <TableColumn Title="工厂全称" Width="180px">
+        <AntInput @bind-Value="@context.Name" />
+    </TableColumn>
+    <TableColumn Title="工厂地址" Width="25%">
+        <AntInput @bind-Value="@context.Address"/>
+    </TableColumn>
+    <TableColumn Title="联系方式" Width="25%">
+        <AntInput @bind-Value="@context.Contact" />
+    </TableColumn>
+    <TableColumn Title="注意事项">
+        <AntInput @bind-Value="@context.Note" />
+    </TableColumn>
+    <ActionColumn Title="操作" Align="ColumnAlign.Center" Width="80" Fixed="ColumnFixPlacement.Right">
+        <KButton Name="删除" OnClick="e => OnDelete(context)" Danger />
+    </ActionColumn>
+</AntTable>

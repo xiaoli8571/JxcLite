@@ -1,0 +1,190 @@
+﻿@inherits BaseForm<BillInfo, JxBillList>
+
+<Tabs Animated>
+    <ChildContent>
+        <TabPane Key="BizInfo" Tab="单据信息">
+            <AntForm TItem="BillInfo" Form="Model" ShowAction>
+                <ChildContent>
+                    <AntRow>
+                        <DataItem Span="6" Label="业务单号" Required>
+                            <AntInput @bind-Value="@context.BillNo" Disabled="IsView" />
+                        </DataItem>
+                        <DataItem Span="6" Label="出货日期" Required>
+                            <AntDatePicker @bind-Value="@context.BillDate" Disabled="IsView" />
+                        </DataItem>
+                        <DataItem Span="6" Label="客户名称" Required>
+                            <SelectPartner @bind-Value="@context.PartnerName" Type="@AppUtils.GetPartnerName(context.Type)" Disabled="IsView" OnChange="OnPartnerChange" />
+                        </DataItem>
+                        <DataItem Span="6" Label="发票号">
+                            <AntInput @bind-Value="@context.InvoiceNo" Disabled="IsView" />
+                        </DataItem>
+                    </AntRow>
+                    <AntRow>
+                        <DataItem Span="12" Label="客户地址">
+                            <AntInput @bind-Value="@context.PartnerAddress" Disabled="IsView" />
+                        </DataItem>
+                        <DataItem Span="12" Label="客户联系人">
+                            <AntInput @bind-Value="@context.PartnerContact" Disabled="IsView" />
+                        </DataItem>
+                    </AntRow>
+                    <AntRow>
+                        <DataItem Span="6" Label="合同号">
+                            <AntInput @bind-Value="@context.ContractNo" Disabled="IsView" />
+                        </DataItem>
+                        <DataItem Span="6" Label="结算方式" Required>
+                            <AntRadioGroup @bind-Value="@context.SettleMode" Category="@nameof(SettleModeType)" ButtonStyle="RadioButtonStyle.Solid" Disabled="IsView" />
+                        </DataItem>
+                        <DataItem Span="6" Label="总金额">
+                            <AntDouble @bind-Value="@context.SumAmount" Disabled /> 元
+                        </DataItem>
+                        <DataItem Span="6" Label="总税额">
+                            <AntDouble @bind-Value="@context.SumTaxAmount" Disabled /> 元
+                        </DataItem>
+                    </AntRow>
+                    <AntRow>
+                        <DataItem Span="6" Label="物流公司">
+                            <AntInput @bind-Value="@context.Logistics" Disabled="IsView" />
+                        </DataItem>
+                        <DataItem Span="6" Label="物流单号">
+                            <AntInput @bind-Value="@context.LogisticsNo" Disabled="IsView" />
+                        </DataItem>
+                        <DataItem Span="6" Label="物流费用">
+                            <AntDouble @bind-Value="@context.LogisticsFee" Disabled="IsView" /> 元
+                        </DataItem>
+                        @if (context.Type == BillType.ImportReturn || context.Type == BillType.ExportReturn)
+                        {
+                            <DataItem Span="6" Label="关联单号" Required>
+                                <SelectBill @bind-Value="@context.RefBillNo" Type="@context.ReturnType" PartnerId="@context.PartnerId" Disabled="IsView" OnChange="OnRefBillNoChange" />
+                            </DataItem>
+                        }
+                    </AntRow>
+                    <AntRow>
+                        <DataItem Span="12" Label="备注">
+                            <AntInput @bind-Value="@context.Note" Disabled="IsView" />
+                        </DataItem>
+                        <DataItem Span="12" Label="附件">
+                            <KUpload @ref="upload" ReadOnly="IsView" Value="@context.Files"
+                                     IsButton="!Model.Data.IsNew" OnFilesChanged="OnFilesChangedAsync" />
+                        </DataItem>
+                    </AntRow>
+                </ChildContent>
+                <ListContent>
+                    <KFlexSpace>
+                        <KTitle Text="货品明细(点击单元格直接编辑,像 Excel 一样)" />
+                        <div>
+                            <AntSwitch @bind-Value="Model.Data.IsTax" Category="含税,不含税" Disabled="IsView" OnChange="OnIsTaxChange" />
+                            <span style="margin:0 8px;">关联订单:</span>
+                            <AntSelect @bind-Value="SelectedOrderId" DataSource="OrderOptions" Placeholder="选择客户订单" Disabled="IsView" Style="width:200px" />
+                            @if (!IsView)
+                            {
+                                <KButton Name="导入明细" OnClick="OnImportOrder" />
+                                <KButton Icon="plus" Name="添加" OnClick="OnAdd" />
+                            }
+                        </div>
+                    </KFlexSpace>
+                    <AntTable @ref="table" TItem="JxBillList" DataSource="ListItems" IsView="IsView" HidePagination ScrollY="200px">
+                        <TableColumn Title="序号" Width="60" Align="ColumnAlign.Center" Fixed="ColumnFixPlacement.Left" Value="@context.SeqNoText">
+                            <AntInput @bind-Value="@context.SeqNoText" Disabled="IsView" />
+                        </TableColumn>
+                        <TableColumn Title="商品类别" Width="100" Ellipsis Fixed="ColumnFixPlacement.Left" Value="@context.Category">
+                            <AntInput @bind-Value="@context.Category" Disabled="IsView" />
+                        </TableColumn>
+                        <TableColumn Title="商品编码" Width="120" Value="@context.Name" Ellipsis Fixed="ColumnFixPlacement.Left">
+                            @if (context.IsBlankRow)
+                            {
+                                <span style="color:#bbb;">&nbsp;</span>
+                            }
+                            else
+                            {
+                                <SelectGoods @bind-Value="@context.Code" Type="@Model.Data.Type" BillId="@Model.Data.RefBillId" OnChange="e => OnGoodsChange(e, context)" />
+                            }
+                        </TableColumn>
+                        <TableColumn Title="商品名称" Width="150" Ellipsis Fixed="ColumnFixPlacement.Left" Value="@context.Name">
+                            <AntInput @bind-Value="@context.Name" Disabled="IsView" />
+                        </TableColumn>
+                        <TableColumn Title="规格" Width="150" Ellipsis Value="@context.Model">
+                            <AntInput @bind-Value="@context.Model" Disabled="IsView" />
+                        </TableColumn>
+                        <TableColumn Title="颜色" Width="100" Ellipsis Value="@context.Color">
+                            <AntInput @bind-Value="@context.Color" Disabled="IsView" />
+                        </TableColumn>
+                        <TableColumn Title="产地" Width="100" Value="@context.Producer">
+                            <AntInput @bind-Value="@context.Producer" Disabled="IsView" />
+                        </TableColumn>
+                        <TableColumn Title="计量单位" Width="100" Value="@context.Unit">
+                            <AntInput @bind-Value="@context.Unit" Disabled="IsView" />
+                        </TableColumn>
+                        <TableColumn Title="件数" Width="100" Align="ColumnAlign.Right" Value="@context.PkgQtyText">
+                            <AntInput @bind-Value="@context.PkgQtyText" Disabled="IsView" />
+                        </TableColumn>
+                        <TableColumn Title="数量" Width="100" Align="ColumnAlign.Right" Value="@context.Qty">
+                            <AntDouble @bind-Value="@context.Qty" OnChange="e => OnQtyChange(context)" />
+                        </TableColumn>
+                        <StringColumn Title="单价(元)" Width="100" Align="ColumnAlign.Right">@context.Price</StringColumn>
+                        <TableColumn Title="金额(元)" Width="100" Align="ColumnAlign.Right" Value="@context.Amount">
+                            <AntDouble @bind-Value="@context.Amount" Disabled="Model.Data.IsTax" OnChange="e => OnPriceChange(context)" />
+                        </TableColumn>
+                        <TableColumn Title="税率" Width="100" Align="ColumnAlign.Center" Value="@($"{context.TaxRate}%")">
+                            <AntInteger @bind-Value="@context.TaxRate" Width="60" OnChange="e => OnPriceChange(context)" /> %
+                        </TableColumn>
+                        <StringColumn Title="税额(元)" Width="100" Align="ColumnAlign.Right">@context.TaxAmount</StringColumn>
+                        <TableColumn Title="价税合计(元)" Width="120" Align="ColumnAlign.Right" Value="@context.TotalAmount">
+                            <AntDouble @bind-Value="@context.TotalAmount" Disabled="!Model.Data.IsTax" OnChange="e => OnPriceChange(context)" />
+                        </TableColumn>
+                        @if (!IsView)
+                        {
+                            <ActionColumn Title="操作" Align="ColumnAlign.Center" Width="160" Fixed="ColumnFixPlacement.Right">
+                                <KButton Name="上移" OnClick="e => OnMoveUp(context)" />
+                                <KButton Name="下移" OnClick="e => OnMoveDown(context)" />
+                                <KButton Name="删除" OnClick="e => OnDelete(context)" Danger />
+                            </ActionColumn>
+                        }
+                        <SummaryRow>
+                            <SummaryCell Fixed="ColumnFixPlacement.Left" Align="ColumnAlign.Center">合计</SummaryCell>
+                            <SummaryCell Fixed="ColumnFixPlacement.Left" />
+                            <SummaryCell Fixed="ColumnFixPlacement.Left" />
+                            <SummaryCell Fixed="ColumnFixPlacement.Left" />
+                            <SummaryCell />
+                            <SummaryCell />
+                            <SummaryCell />
+                            <SummaryCell Align="ColumnAlign.Right">@ListItems.Sum(l => l.Qty)</SummaryCell>
+                            <SummaryCell />
+                            <SummaryCell Align="ColumnAlign.Right">@Utils.Round(ListItems.Sum(l => l.Amount), 2)</SummaryCell>
+                            <SummaryCell />
+                            <SummaryCell Align="ColumnAlign.Right">@Utils.Round(ListItems.Sum(l => l.TaxAmount), 2)</SummaryCell>
+                            <SummaryCell Align="ColumnAlign.Right">@Utils.Round(ListItems.Sum(l => l.TotalAmount), 2)</SummaryCell>
+                            <SummaryCell />
+                            @if (!IsView)
+                            {
+                                <SummaryCell />
+                            }
+                        </SummaryRow>
+                    </AntTable>
+                </ListContent>
+            </AntForm>
+        </TabPane>
+        <TabPane Key="FlowLog" Tab="流程记录">
+            <FlowLogGrid BizId="@Model.Data.Id" />
+        </TabPane>
+        <TabPane Key="PrintPreview" Tab="打印预览">
+            <KFlexSpace>
+                <KTitle Text="送货单打印预览(在纸上直接编辑)" />
+                <div>
+                    <KButton Name="刷新预览" OnClick="OnRefreshPreview" />
+                    <KButton Name="导出Excel" OnClick="OnExportExcel" />
+                </div>
+            </KFlexSpace>
+            <div style="background:#f5f5f5;padding:12px;border-radius:6px;margin-top:8px;">
+                <div style="background:#fff;max-width:900px;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.15);overflow:auto;">
+                    <BillPrint Model="PreviewModel" IsEditMode="true" OnChanged="OnPreviewChanged" OnPrintRequest="OnPreviewPrint" />
+                </div>
+            </div>
+            <div class="opacitymedium" style="margin-top:8px;font-size:12px;">
+                * 在预览纸上可直接编辑业务单号/日期/客户/地址等字段,勾选"相同商品自动合并"可合并明细行,点"保存到单据"同步回表单
+            </div>
+        </TabPane>
+    </ChildContent>
+    <TabBarExtraContentRight>
+        <KTag Text="@Model.Data.Status" />
+    </TabBarExtraContentRight>
+</Tabs>

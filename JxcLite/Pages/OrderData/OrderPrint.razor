@@ -1,0 +1,76 @@
+<style>
+    /* A4 纸 */
+    @@page { size: A4 portrait; margin: 10mm; }
+    .order-print { font-size: 12px; font-family: "SimSun","宋体",serif; color:#000; }
+    .order-print .title { font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 8px; padding: 8px 0 10px; }
+    .order-print .head-line { font-size: 12px; padding: 2px 0; }
+    .order-print table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .order-print table th, .order-print table td { border: 1px solid #000; padding: 5px 6px; font-size: 12px; word-break: break-all; vertical-align: middle; }
+    .order-print table th { font-weight: bold; background: none; text-align: center; }
+    .order-print .lbl { font-weight: bold; }
+    .order-print .note-box { border: 1px solid #000; margin-top: 8px; padding: 6px; min-height: 60px; white-space: pre-wrap; }
+    .order-print .note-title { font-weight: bold; }
+    .order-print .sign { display: flex; justify-content: space-between; margin-top: 14px; padding: 0 4px; }
+    .order-print .sign div { text-align: center; }
+</style>
+
+<div class="order-print">
+    <div class="title">采 购 订 单</div>
+    <div class="head-line">供应商：东帆纺织品有限公司　　@(Model.OrderDate?.ToString("yyyy年M月d日"))</div>
+    <div class="head-line">单据编号：@Model.CustomerNo　　(订单号 @Model.OrderNo)</div>
+    <table>
+        <tr>
+            <th class="lbl" style="width:80px;">客户名称</th>
+            <td>@Model.CustomerName</td>
+            <th class="lbl" style="width:80px;">联系人</th>
+            <td>@Model.Contact</td>
+            <th class="lbl" style="width:80px;">电话</th>
+            <td>@Model.Phone</td>
+        </tr>
+        <tr>
+            <th class="lbl">交货地点</th>
+            <td colspan="5">@Model.Address</td>
+        </tr>
+    </table>
+    <table style="margin-top:6px;">
+        <tr>
+            <th style="width:40px;">序号</th>
+            <th style="width:80px;">存货编码</th>
+            <th>品名</th>
+            <th style="width:100px;">规格</th>
+            <th style="width:70px;">颜色</th>
+            <th style="width:90px;">客户订单号</th>
+            <th style="width:50px;">单位</th>
+            <th style="width:70px;">订购数量</th>
+            <th style="width:70px;">单价</th>
+            <th style="width:80px;">金额</th>
+            <th style="width:90px;">交货日期</th>
+            <th>备注</th>
+        </tr>
+        @foreach (var item in Lists)
+        {
+            <tr>
+                <td style="text-align:center;">@item.SeqNo</td>
+                <td>@item.GoodsCode</td>
+                <td>@item.GoodsName</td>
+                <td>@item.Spec</td>
+                <td>@item.Color</td>
+                <td>@item.CustomerOrderNo</td>
+                <td style="text-align:center;">@item.Unit</td>
+                <td style="text-align:right;">@item.Qty?.ToString("0.##")</td>
+                <td style="text-align:right;">@item.Price?.ToString("0.00")</td>
+                <td style="text-align:right;">@item.Amount?.ToString("0.00")</td>
+                <td>@item.DeliveryDate</td>
+                <td>@item.Note</td>
+            </tr>
+        }
+    </table>
+    <div class="note-box">
+        <div class="note-title">备注：</div>
+        @Model.Note
+    </div>
+    <div class="sign">
+        <div>审核：@Model.Auditor</div>
+        <div>制单：@Model.Maker</div>
+    </div>
+</div>

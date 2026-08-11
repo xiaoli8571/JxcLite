@@ -1,0 +1,69 @@
+@inherits BaseForm<JxPayment>
+
+<AntForm TItem="JxPayment" Form="Model">
+    <ChildContent>
+        <AntRow>
+            <DataItem Span="8" Label="单据编号" Required>
+                <AntInput @bind-Value="context.PaymentNo" Disabled />
+            </DataItem>
+            <DataItem Span="8" Label="单据日期" Required>
+                <AntDatePicker @bind-Value="context.PaymentDate" />
+            </DataItem>
+            <DataItem Span="8" Label="单据来源" Required>
+                <AntSelectCode @bind-Value="context.Source" Category="@nameof(PaymentSource)" />
+            </DataItem>
+        </AntRow>
+        <AntRow>
+            <DataItem Span="16" Label="@context.Type" Required>
+                <SelectPartner @bind-Value="@context.PartnerName" Type="@context.Type" OnChange="e => context.PartnerId = e?.Id" />
+            </DataItem>
+        </AntRow>
+        <AntRow>
+            <DataItem Span="8" Label="总金额" Required>
+                <AntDouble @bind-Value="context.TotalAmount" /> 元
+            </DataItem>
+            <DataItem Span="8" Label="@PaidAmountName">
+                <AntDouble @bind-Value="context.PaidAmount" Disabled /> 元
+            </DataItem>
+            <DataItem Span="8" Label="剩余金额">
+                <AntDouble @bind-Value="context.RemainAmount" Disabled /> 元
+            </DataItem>
+        </AntRow>
+        <AntRow>
+            <DataItem Span="24" Label="备注">
+                <AntInput @bind-Value="context.Note" />
+            </DataItem>
+        </AntRow>
+        <AntRow>
+            <DataItem Span="24" Label="附件">
+                <KUpload MultiFile Value="@context.Files" OnFilesChanged="OnFilesChangedAsync" />
+            </DataItem>
+        </AntRow>
+    </ChildContent>
+    <ListContent>
+        <KFlexSpace>
+            <KTitle Text="@RecordName" />
+            @if (!Model.IsView)
+            {
+                <KButton Icon="plus" Name="添加" OnClick="OnAdd" />
+            }
+        </KFlexSpace>
+        <AntTable TItem="PaymentRecord" DataSource="Model.Data.Records" IsView="Model.IsView" HidePagination ScrollY="200px">
+            <TableColumn Title="日期" Width="140" Value="@context.PayDate?.ToString("yyyy-MM-dd")">
+                <AntDatePicker @bind-Value="@context.PayDate" />
+            </TableColumn>
+            <TableColumn Title="金额(元)" Width="120" Value="@context.Amount">
+                <AntDouble @bind-Value="@context.Amount" OnChange="OnAmountChange" />
+            </TableColumn>
+            <TableColumn Title="备注" Value="@context.Note">
+                <AntInput @bind-Value="@context.Note" />
+            </TableColumn>
+            @if (!Model.IsView)
+            {
+                <ActionColumn Title="操作" Align="ColumnAlign.Center" Width="80" Fixed="ColumnFixPlacement.Right">
+                    <KButton Name="删除" OnClick="e => OnDelete(context)" Danger />
+                </ActionColumn>
+            }
+        </AntTable>
+    </ListContent>
+</AntForm>

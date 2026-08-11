@@ -1,0 +1,60 @@
+﻿@inherits BaseForm<AccountInfo>
+
+<Tabs Animated>
+    <ChildContent>
+        <TabPane Key="BaseInfo" Tab="基本信息">
+            <AntForm TItem="AccountInfo" Form="Model" ShowAction>
+                <AntRow>
+                    <DataItem Span="8" Label="对账单号" Required>
+                        <AntInput @bind-Value="@context.AccountNo" Disabled />
+                    </DataItem>
+                    <DataItem Span="8" Label="单证状态">
+                        <KTag Text="@context.Status" />
+                    </DataItem>
+                    <DataItem Span="8" Label="对账日期" Required>
+                        <AntDatePicker @bind-Value="@context.AccountDate" />
+                    </DataItem>
+                </AntRow>
+                <AntRow>
+                    <DataItem Span="8" Label="@context.Type" Required>
+                        <SelectPartner @bind-Value="@context.PartnerName" Type="@context.Type" OnChange="e => context.PartnerId = e?.Id" />
+                    </DataItem>
+                    <DataItem Span="8" Label="业务日期" Required>
+                        <AntRangePicker @bind-RangeValue="@context.BizDates" />
+                    </DataItem>
+                    <DataItem Span="8" Label="总金额">
+                        <AntDouble @bind-Value="@context.TotalAmount" /> 元
+                    </DataItem>
+                </AntRow>
+                <AntRow>
+                    <DataItem Span="8" Label="合同号">
+                        <AntInput @bind-Value="@context.ContractNo" />
+                    </DataItem>
+                    <DataItem Span="8" Label="发票号">
+                        <AntInput @bind-Value="@context.InvoiceNo" />
+                    </DataItem>
+                </AntRow>
+                <AntRow>
+                    <DataItem Span="24" Label="备注">
+                        <AntTextArea @bind-Value="@context.Note" />
+                    </DataItem>
+                </AntRow>
+                <AntRow>
+                    <DataItem Span="24" Label="附件">
+                        <KUpload @ref="upload" ReadOnly="Model.IsView" Value="@context.Files"
+                                 IsButton="!Model.Data.IsNew" OnFilesChanged="OnFilesChangedAsync" />
+                    </DataItem>
+                </AntRow>
+            </AntForm>
+        </TabPane>
+        <TabPane Key="Detail" Tab="对账明细">
+            <BillHeadTable Account="Model.Data" />
+        </TabPane>
+        <TabPane Key="FlowLog" Tab="流程记录">
+            <FlowLogGrid BizId="@Model.Data.Id" />
+        </TabPane>
+    </ChildContent>
+    <TabBarExtraContentRight>
+        <KTag Text="@Model.Data.Status" />
+    </TabBarExtraContentRight>
+</Tabs>

@@ -1,0 +1,124 @@
+<style>
+    /* A4 纸:210mm × 297mm,边缘留 12mm 距离 */
+    @@page { size: A4 portrait; margin: 12mm; }
+    .process-print { font-size: 14px; font-family: "SimSun","宋体",serif; color:#000; }
+    .process-print .title-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 2px 10px; }
+    .process-print .title { font-size: 28px; font-weight: bold; text-align: center; letter-spacing: 6px; margin: 0 auto; }
+    .process-print .bill-no { font-size: 14px; font-weight: normal; white-space: nowrap; }
+    .process-print table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .process-print table th, .process-print table td { border: 1px solid #000; padding: 10px 10px; font-size: 14px; word-break: break-all; vertical-align: middle; }
+    .process-print table th { font-weight: bold; background: none; text-align: center; }
+    .process-print .label { text-align: center; font-weight: bold; background: #f5f5f5; width: 110px; }
+    .process-print .field { padding-left: 10px; }
+    /* 分节标题行 */
+    .process-print .section td { font-weight: bold; text-align: center; background: #e8e8e8; letter-spacing: 8px; }
+    /* 备注横格线(3行固定线,不受文字高度影响) */
+    .process-print .note-area { padding: 0; }
+    .process-print .note-content { min-height: 40px; padding: 6px 10px; }
+    .process-print .note-line { border-bottom: 1px solid #000; height: 26px; margin: 0 4px; }
+    .process-print .sign { display: flex; justify-content: space-between; margin-top: 12px; padding: 0 4px; font-size: 14px; }
+    .process-print .sign div { text-align: center; }
+</style>
+
+<div class="process-print">
+    <div class="title-row">
+        <div class="title">东帆公司生产加工单</div>
+        <div class="bill-no">内部单号：@Model.BillNo</div>
+    </div>
+    <table>
+        <tr>
+            <th class="label">加工工厂</th>
+            <td class="field" colspan="3">@Model.Factory</td>
+        </tr>
+        <tr>
+            <th class="label">加工厂单号</th>
+            <td class="field">@Model.FactoryNo</td>
+            <th class="label">下单日期</th>
+            <td class="field">@(Model.BillDate?.ToString("yyyy-MM-dd"))</td>
+        </tr>
+        <tr class="section">
+            <td colspan="4">加工资料</td>
+        </tr>
+        <tr>
+            <th class="label">品名规格</th>
+            <td class="field">@Model.GoodsSpec</td>
+            <th class="label">胚布幅宽</th>
+            <td class="field">@Model.ClothWidth</td>
+        </tr>
+        <tr>
+            <th class="label">颜色</th>
+            <td class="field">@Model.Color</td>
+            <th class="label">投坯数量Y</th>
+            <td class="field">@Model.InputQty</td>
+        </tr>
+        <tr>
+            <th class="label">要求交期</th>
+            <td class="field" colspan="3">@(Model.DeliveryDate?.ToString("yyyy-MM-dd"))</td>
+        </tr>
+        <tr class="section">
+            <td colspan="4">加工工艺要求</td>
+        </tr>
+        <tr>
+            <th class="label">主灯</th>
+            <td class="field">@Model.MainLight</td>
+            <th class="label">辅灯</th>
+            <td class="field">@Model.AuxLight</td>
+        </tr>
+        <tr>
+            <th class="label">对色色卡</th>
+            <td class="field" colspan="3">@Model.ColorCard</td>
+        </tr>
+        <tr>
+            <th class="label">干摩擦牢度</th>
+            <td class="field">@Model.DryRubbing 级</td>
+            <th class="label">湿摩擦牢度</th>
+            <td class="field">@Model.WetRubbing 级</td>
+        </tr>
+        <tr>
+            <th class="label">PH值</th>
+            <td class="field">@Model.PhValue</td>
+            <th class="label">日晒牢度</th>
+            <td class="field">@Model.SunRubbing 级</td>
+        </tr>
+        <tr>
+            <th class="label">耐黄度</th>
+            <td class="field">@Model.YellowResist 级</td>
+            <th class="label">皂洗牢度</th>
+            <td class="field">@Model.SoapRubbing 级</td>
+        </tr>
+        <tr>
+            <th class="label">本光</th>
+            <td class="field">@(Model.BenGuang == "✓" ? "√" : "　")</td>
+            <th class="label">丝光</th>
+            <td class="field">@(Model.SiGuang == "✓" ? "√" : "　")</td>
+        </tr>
+        <tr>
+            <th class="label">硫化</th>
+            <td class="field">@(Model.LiuHua == "✓" ? "√" : "　")</td>
+            <th class="label">活性</th>
+            <td class="field">@(Model.HuoXing == "✓" ? "√" : "　")</td>
+        </tr>
+        <tr>
+            <th class="label">碧纹洗水</th>
+            <td class="field">@(Model.BiJiXiShui == "✓" ? "√" : "　")</td>
+            <th class="label">涂料</th>
+            <td class="field">@(Model.TuLiao == "✓" ? "√" : "　")</td>
+        </tr>
+        <tr>
+            <th class="label">预缩</th>
+            <td class="field">@(Model.YuSuo == "✓" ? "√" : "　")</td>
+            <th class="label">成品宽幅</th>
+            <td class="field">@Model.FinishWidth</td>
+        </tr>
+        <tr class="section">
+            <td colspan="4">备注</td>
+        </tr>
+        <tr class="note-lines">
+            <td colspan="4"><span class="note-text">@Model.Note</span></td>
+        </tr>
+    </table>
+    <div class="sign">
+        <div>审核：@Model.Auditor</div>
+        <div style="margin-right:40px;">制单：@Model.Maker</div>
+    </div>
+</div>

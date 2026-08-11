@@ -1,0 +1,4 @@
+Return  | 退货 | rollback   | primary
+Confirm | 确认 | check      | primary
+Invoice | 开票 | profile    | primary
+Payment | 回款 | pay-circle | primary
