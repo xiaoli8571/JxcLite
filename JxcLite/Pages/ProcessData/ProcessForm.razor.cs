@@ -71,7 +71,7 @@ public partial class ProcessForm
     {
         await JS.RunVoidAsync(@"
 (async () => {
-    const el = document.getElementById('process-print-area');
+    const el = document.querySelector('#process-print-area .process-print');
     if (!el) { alert('未找到打印预览区域'); return; }
     if (typeof html2canvas === 'undefined') {
         await new Promise((resolve, reject) => {

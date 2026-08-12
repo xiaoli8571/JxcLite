@@ -2,6 +2,19 @@
     /* A4 纸:210mm × 297mm,边缘留 12mm 距离 */
     @@page { size: A4 portrait; margin: 12mm; }
     .process-print { font-size: 14px; font-family: "SimSun","宋体",serif; color:#000; }
+    /* 屏幕预览纸张外观(A4 白纸+边距);打印时隐藏由页面边距控制 */
+    .process-print .a4-page {
+        width: 210mm;
+        min-height: 297mm;
+        background: #fff;
+        padding: 12mm;
+        box-sizing: border-box;
+        margin: 0 auto;
+        box-shadow: 0 2px 10px rgba(0,0,0,.2);
+    }
+    @@media print {
+        .process-print .a4-page { width: auto; min-height: auto; padding: 0; margin: 0; box-shadow: none; }
+    }
     .process-print .title-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 2px 10px; }
     .process-print .title { font-size: 28px; font-weight: bold; text-align: center; letter-spacing: 6px; margin: 0 auto; }
     .process-print .bill-no { font-size: 14px; font-weight: normal; white-space: nowrap; }
@@ -21,6 +34,7 @@
 </style>
 
 <div class="process-print">
+    <div class="a4-page">
     <div class="title-row">
         <div class="title">东帆公司生产加工单</div>
         <div class="bill-no">内部单号：@Model.BillNo</div>
@@ -120,5 +134,6 @@
     <div class="sign">
         <div>审核：@Model.Auditor</div>
         <div style="margin-right:40px;">制单：@Model.Maker</div>
+    </div>
     </div>
 </div>
