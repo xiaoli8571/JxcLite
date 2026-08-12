@@ -37,6 +37,15 @@ public class JxGoods : EntityBase
     public string Name { get; set; }
 
     /// <summary>
+    /// 取得或设置颜色。
+    /// </summary>
+    [MaxLength(100)]
+    [Column(Width = 100, IsQuery = true)]
+    [Form(Row = 1, Column = 3)]
+    [DisplayName("颜色")]
+    public string Color { get; set; }
+
+    /// <summary>
     /// 取得或设置规格型号。
     /// </summary>
     [MaxLength(500)]

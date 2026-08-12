@@ -27,6 +27,13 @@ public class InventoryInfo
     public string Name { get; set; }
 
     /// <summary>
+    /// 取得或设置颜色。
+    /// </summary>
+    [Column(Width = 100)]
+    [DisplayName("颜色")]
+    public string Color { get; set; }
+
+    /// <summary>
     /// 取得或设置规格型号。
     /// </summary>
     [Column(Width = 200, Ellipsis = true)]
