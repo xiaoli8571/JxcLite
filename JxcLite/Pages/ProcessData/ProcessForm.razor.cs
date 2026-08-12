@@ -63,4 +63,30 @@ public partial class ProcessForm
     {
         await JS.PrintAsync<ProcessPrint>(f => f.Set(c => c.Model, Model.Data));
     }
+
+    /// <summary>
+    /// 导出打印预览为 PNG 图片。
+    /// </summary>
+    private async Task OnExportImage()
+    {
+        await JS.RunVoidAsync(@"
+(async () => {
+    const el = document.getElementById('process-print-area');
+    if (!el) { alert('未找到打印预览区域'); return; }
+    if (typeof html2canvas === 'undefined') {
+        await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+            s.onload = resolve; s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    }
+    const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+    const link = document.createElement('a');
+    link.download = '加工单_' + new Date().toISOString().slice(0, 10) + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+})();
+");
+    }
 }

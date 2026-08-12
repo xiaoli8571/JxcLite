@@ -2,6 +2,8 @@
 @using AntDesign
 @inherits BaseForm<ProcessInfo>
 
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 <Tabs Animated>
     <ChildContent>
         <TabPane Key="BizInfo" Tab="单据信息">
@@ -131,9 +133,10 @@
             <div style="display:flex;gap:8px;margin-bottom:8px;justify-content:flex-end;">
                 <KButton Name="保存并刷新预览" OnClick="OnRefreshPreview" />
                 <KButton Name="打印" OnClick="OnPrint" />
+                <KButton Name="导出图片" OnClick="OnExportImage" />
             </div>
             <div style="background:#f5f5f5;padding:12px;border-radius:6px;">
-                <div style="background:#fff;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.15);overflow:auto;">
+                <div id="process-print-area" style="background:#fff;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.15);overflow:auto;">
                     <ProcessPrint Model="Model.Data" />
                 </div>
             </div>
