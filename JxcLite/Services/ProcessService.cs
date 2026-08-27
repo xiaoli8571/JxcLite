@@ -5,14 +5,18 @@ class ProcessService(Context context) : ServiceBase(context)
 {
     public Task<PagingResult<ProcessInfo>> QueryProcessAsync(PagingCriteria criteria)
     {
-        var sql = "select * from JxProcess where CompNo=@CompNo";
+        var sql = @"
+select a.*,b.Name as GoodsName
+from JxProcess a
+left join JxGoods b on a.GoodsId=b.Id
+where a.CompNo=@CompNo";
         var type = criteria.GetParameter<string>("Type");
         if (!string.IsNullOrWhiteSpace(type))
-            sql += " and Type=@Type";
-        criteria.Fields[nameof(ProcessInfo.Type)] = "Type";
-        criteria.Fields[nameof(ProcessInfo.BillNo)] = "BillNo";
-        criteria.Fields[nameof(ProcessInfo.Factory)] = "Factory";
-        criteria.Fields[nameof(ProcessInfo.BillDate)] = "BillDate";
+            sql += " and a.Type=@Type";
+        criteria.Fields[nameof(ProcessInfo.Type)] = "a.Type";
+        criteria.Fields[nameof(ProcessInfo.BillNo)] = "a.BillNo";
+        criteria.Fields[nameof(ProcessInfo.Factory)] = "a.Factory";
+        criteria.Fields[nameof(ProcessInfo.BillDate)] = "a.BillDate";
         return Database.QueryPageAsync<ProcessInfo>(sql, criteria);
     }
 

@@ -78,6 +78,7 @@ public class ProcessInfo : EntityBase, IAppFlowInfo
     /// 取得或设置品名规格。
     /// </summary>
     [MaxLength(100)]
+    [Column(Width = 180, Ellipsis = true)]
     [DisplayName("品名规格")]
     public string GoodsSpec { get; set; }
 
@@ -89,9 +90,17 @@ public class ProcessInfo : EntityBase, IAppFlowInfo
     public string GoodsId { get; set; }
 
     /// <summary>
+    /// 取得或设置关联商品名称(列表显示用,SQL join 出,非表字段)。
+    /// </summary>
+    [Column(Width = 120, Ellipsis = true)]
+    [DisplayName("关联商品")]
+    public string GoodsName { get; set; }
+
+    /// <summary>
     /// 取得或设置胚布幅宽。
     /// </summary>
     [MaxLength(50)]
+    [Column(Width = 90)]
     [DisplayName("胚布幅宽")]
     public string ClothWidth { get; set; }
 
@@ -99,6 +108,7 @@ public class ProcessInfo : EntityBase, IAppFlowInfo
     /// 取得或设置颜色。
     /// </summary>
     [MaxLength(50)]
+    [Column(Width = 90)]
     [DisplayName("颜色")]
     public string Color { get; set; }
 
@@ -106,12 +116,14 @@ public class ProcessInfo : EntityBase, IAppFlowInfo
     /// 取得或设置投坯数量Y。
     /// </summary>
     [MaxLength(50)]
+    [Column(Width = 100, Align = "right")]
     [DisplayName("投坯数量Y")]
     public string InputQty { get; set; }
 
     /// <summary>
     /// 取得或设置要求交期。
     /// </summary>
+    [Column(Width = 100, Type = FieldType.Date)]
     [DisplayName("要求交期")]
     public DateTime? DeliveryDate { get; set; }
 
