@@ -1,9 +1,84 @@
 namespace JxcLite.Pages.ProcessData;
 
+using JxcLite.Services;
+
 public partial class ProcessForm
 {
     private ProcessService Service;
     private List<string> Factories = [];
+    private List<string> _goodsOptions = [];
+    private List<JxGoods> _goodsList = [];
+    private string _stockTip;
+
+    /// <summary>
+    /// 关联商品下拉选中值(与 GoodsId 双向同步)。
+    /// </summary>
+    private string SelectedGoodsId
+    {
+        get => Model?.Data?.GoodsId;
+        set
+        {
+            if (Model?.Data != null && Model.Data.GoodsId != value)
+            {
+                Model.Data.GoodsId = value;
+                _ = OnGoodsChanged(value);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 关联商品选择变化:自动回填品名规格/颜色并刷新当前库存提示。
+    /// </summary>
+    private async Task OnGoodsChanged(string goodsId)
+    {
+        if (string.IsNullOrWhiteSpace(goodsId))
+        {
+            _stockTip = null;
+            StateChanged();
+            return;
+        }
+        var goods = _goodsList.FirstOrDefault(g =>
+        {
+            var spec = g.Name;
+            if (!string.IsNullOrWhiteSpace(g.Model)) spec += $" {g.Model}";
+            if (!string.IsNullOrWhiteSpace(g.Color)) spec += $" {g.Color}";
+            return spec == goodsId;
+        });
+        if (goods != null)
+        {
+            Model.Data.GoodsSpec = goodsId;
+            Model.Data.Color ??= goods.Color;
+            Model.Data.GoodsId = goods.Id;
+        }
+        await RefreshStockTipAsync();
+        StateChanged();
+    }
+
+    /// <summary>
+    /// 刷新关联商品的当前库存提示(期初+采购-销售-加工领用)。
+    /// </summary>
+    private async Task RefreshStockTipAsync()
+    {
+        var goodsId = Model.Data.GoodsId;
+        if (string.IsNullOrWhiteSpace(goodsId))
+        {
+            _stockTip = null;
+            return;
+        }
+        try
+        {
+            var invService = await CreateServiceAsync<InventoryService>();
+            var inv = await invService.GetInventoryByGoodsIdAsync(goodsId);
+            if (inv != null)
+                _stockTip = $"当前库存:{inv.InventoryQty:0.##} (期初{inv.InitialQty:0.##} 进{inv.ImportQty:0.##} 销{inv.ExportQty:0.##} 加工领用{inv.ProcessUseQty:0.##})";
+            else
+                _stockTip = "该商品暂无库存记录";
+        }
+        catch
+        {
+            _stockTip = null;
+        }
+    }
 
     private async Task<List<CodeInfo>> OnSearchFactory(string key, int size)
     {
@@ -28,6 +103,24 @@ public partial class ProcessForm
         {
             Factories = [];
         }
+        // 加载商品下拉(关联库存)
+        try
+        {
+            _goodsList = await Service.GetGoodsListAsync();
+            foreach (var g in _goodsList)
+            {
+                var spec = g.Name;
+                if (!string.IsNullOrWhiteSpace(g.Model)) spec += $" {g.Model}";
+                if (!string.IsNullOrWhiteSpace(g.Color)) spec += $" {g.Color}";
+                _goodsOptions.Add(spec);
+            }
+            await RefreshStockTipAsync();
+        }
+        catch
+        {
+            _goodsOptions = [];
+            _goodsList = [];
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -39,6 +132,7 @@ public partial class ProcessForm
             if (data != null)
             {
                 Model.Data = data;
+                await RefreshStockTipAsync();
                 StateChanged();
             }
         }

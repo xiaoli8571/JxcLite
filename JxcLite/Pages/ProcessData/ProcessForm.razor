@@ -28,8 +28,12 @@
                         </DataItem>
                     </AntRow>
                     <AntRow>
+                        <DataItem Span="8" Label="关联商品">
+                            <AntSelect @bind-Value="SelectedGoodsId" DataSource="_goodsOptions" Placeholder="选择库存商品(自动扣减)"
+                                       AllowClear ShowSearch Style="width:100%" OnSelectedItemChanged="OnGoodsChanged" TItem="string" TValue="string" />
+                        </DataItem>
                         <DataItem Span="8" Label="品名规格">
-                            <AntInput @bind-Value="@context.GoodsSpec" />
+                            <AntInput @bind-Value="@context.GoodsSpec" Placeholder="选商品自动带出,可手改" />
                         </DataItem>
                         <DataItem Span="8" Label="胚布幅宽">
                             <AntInput @bind-Value="@context.ClothWidth" />
@@ -40,10 +44,15 @@
                     </AntRow>
                     <AntRow>
                         <DataItem Span="12" Label="投坯数量Y">
-                            <AntInput @bind-Value="@context.InputQty" />
+                            <AntInput @bind-Value="@context.InputQty" Placeholder="保存后自动从库存扣减" />
                         </DataItem>
                         <DataItem Span="12" Label="要求交期">
                             <AntDatePicker @bind-Value="@context.DeliveryDate" />
+                        </DataItem>
+                    </AntRow>
+                    <AntRow>
+                        <DataItem Span="24">
+                            <div style="color:#888;font-size:12px;padding:0 8px;">@_stockTip</div>
                         </DataItem>
                     </AntRow>
                     <AntRow>

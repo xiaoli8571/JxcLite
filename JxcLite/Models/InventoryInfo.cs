@@ -62,6 +62,13 @@ public class InventoryInfo
     public double? SafeQty { get; set; }
 
     /// <summary>
+    /// 取得或设置期初库存。
+    /// </summary>
+    [Column(Width = 120, Align = "right")]
+    [DisplayName("期初库存")]
+    public double? InitialQty { get; set; }
+
+    /// <summary>
     /// 取得或设置进货数量。
     /// </summary>
     [Column(Width = 120, Align = "right")]
@@ -88,6 +95,20 @@ public class InventoryInfo
     [Column(Width = 140, Align = "right")]
     [DisplayName("销退货数量")]
     public double? ExportReturnQty { get; set; }
+
+    /// <summary>
+    /// 取得或设置加工领用数量。
+    /// </summary>
+    [Column(Width = 140, Align = "right")]
+    [DisplayName("加工领用")]
+    public double? ProcessUseQty { get; set; }
+
+    /// <summary>
+    /// 取得或设置加工退回数量。
+    /// </summary>
+    [Column(Width = 140, Align = "right")]
+    [DisplayName("加工退回")]
+    public double? ProcessReturnQty { get; set; }
 
     /// <summary>
     /// 取得或设置当前库存。

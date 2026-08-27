@@ -82,6 +82,13 @@ public class ProcessInfo : EntityBase, IAppFlowInfo
     public string GoodsSpec { get; set; }
 
     /// <summary>
+    /// 取得或设置关联商品ID(用于库存联动)。
+    /// </summary>
+    [MaxLength(50)]
+    [DisplayName("关联商品")]
+    public string GoodsId { get; set; }
+
+    /// <summary>
     /// 取得或设置胚布幅宽。
     /// </summary>
     [MaxLength(50)]

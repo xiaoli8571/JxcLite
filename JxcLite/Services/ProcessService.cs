@@ -45,6 +45,25 @@ class ProcessService(Context context) : ServiceBase(context)
         return partners?.Select(p => p.Name).Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().ToList() ?? [];
     }
 
+    /// <summary>
+    /// 取得商品列表(品名规格关联库存)。
+    /// </summary>
+    public async Task<List<JxGoods>> GetGoodsListAsync()
+    {
+        var sql = "select * from JxGoods where CompNo=@CompNo order by Name";
+        return await Database.QueryListAsync<JxGoods>(sql, new { CompNo = CurrentUser?.CompNo ?? "1" }) ?? [];
+    }
+
+    /// <summary>
+    /// 按商品ID取商品信息(选择商品后回填品名规格等)。
+    /// </summary>
+    public async Task<JxGoods> GetGoodsByIdAsync(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+            return null;
+        return await Database.QueryByIdAsync<JxGoods>(id);
+    }
+
     public async Task<Result> DeleteProcessAsync(List<ProcessInfo> infos)
     {
         if (infos == null || infos.Count == 0)

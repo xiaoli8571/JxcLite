@@ -99,6 +99,14 @@ public class JxGoods : EntityBase
     public int? SafeQty { get; set; }
 
     /// <summary>
+    /// 取得或设置期初库存。
+    /// </summary>
+    [Column(Width = 120, Align = "right")]
+    [Form(Row = 4, Column = 3)]
+    [DisplayName("期初库存")]
+    public double? InitialQty { get; set; }
+
+    /// <summary>
     /// 取得或设置备注。
     /// </summary>
     [Column(Width = 200)]
