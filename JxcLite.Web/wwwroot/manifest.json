@@ -1,6 +1,6 @@
 {
-  "name": "JxcLite",
-  "short_name": "JxcLite",
+  "name": "东帆进销存",
+  "short_name": "东帆",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
