@@ -46,7 +46,7 @@ public static class AppConfig
     private static void AddUIConfig(this IServiceCollection services)
     {
         UIConfig.EnableEdit = false;
-        //UIConfig.Copyright = string.Empty;
+        UIConfig.Copyright = "东帆进销存ERP系统 © 东帆纺织品有限公司";
         //UIConfig.SoftTerms = string.Empty;
         UIConfig.TagColor = GetTagColor;
         UIConfig.CompanyTabs.Set<FactoryList>(2, "工厂信息");
