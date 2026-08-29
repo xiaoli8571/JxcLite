@@ -1,4 +1,4 @@
-namespace JxcLite.Entities;
+﻿namespace JxcLite.Entities;
 
 /// <summary>
 /// 加工单实体。
@@ -84,10 +84,10 @@ public class JxProcess : EntityBase
     public string Color { get; set; }
 
     /// <summary>
-    /// 取得或设置投坯数量Y。
+    /// 取得或设置投坯数量。
     /// </summary>
     [MaxLength(50)]
-    [DisplayName("投坯数量Y")]
+    [DisplayName("投坯数量")]
     public string InputQty { get; set; }
 
     /// <summary>

@@ -113,11 +113,11 @@ public class ProcessInfo : EntityBase, IAppFlowInfo
     public string Color { get; set; }
 
     /// <summary>
-    /// 取得或设置投坯数量Y。
+    /// 取得或设置投坯数量。
     /// </summary>
     [MaxLength(50)]
     [Column(Width = 100, Align = "right")]
-    [DisplayName("投坯数量Y")]
+    [DisplayName("投坯数量")]
     public string InputQty { get; set; }
 
     /// <summary>

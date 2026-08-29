@@ -1,4 +1,4 @@
-namespace JxcLite.Pages.ProcessData;
+﻿namespace JxcLite.Pages.ProcessData;
 
 /// <summary>
 /// 加工单列表页面。
@@ -23,7 +23,7 @@ public class ProcessList : BaseTablePage<ProcessInfo>
         Table.Column(c => c.BillDate).Type(FieldType.Date);
         Table.Column(c => c.GoodsSpec).Name("品名规格");
         Table.Column(c => c.Color).Name("颜色");
-        Table.Column(c => c.InputQty).Name("投坯数量Y");
+        Table.Column(c => c.InputQty).Name("投坯数量");
         Table.Column(c => c.DeliveryDate).Name("要求交期");
 
         Table.ActionCount = 3;
@@ -70,7 +70,7 @@ public class ProcessReturnList : BaseTablePage<ProcessInfo>
         Table.Column(c => c.BillDate).Type(FieldType.Date);
         Table.Column(c => c.GoodsSpec).Name("品名规格");
         Table.Column(c => c.Color).Name("颜色");
-        Table.Column(c => c.InputQty).Name("投坯数量Y");
+        Table.Column(c => c.InputQty).Name("投坯数量");
         Table.Column(c => c.DeliveryDate).Name("要求交期");
 
         Table.ActionCount = 3;

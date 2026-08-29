@@ -1,4 +1,4 @@
-@using Known.Components
+﻿@using Known.Components
 @using AntDesign
 @inherits BaseForm<ProcessInfo>
 
@@ -43,7 +43,7 @@
                         </DataItem>
                     </AntRow>
                     <AntRow>
-                        <DataItem Span="12" Label="投坯数量Y">
+                        <DataItem Span="12" Label="投坯数量">
                             <AntInput @bind-Value="@context.InputQty" Placeholder="保存后自动从库存扣减" />
                         </DataItem>
                         <DataItem Span="12" Label="要求交期">
