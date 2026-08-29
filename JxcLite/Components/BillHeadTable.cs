@@ -1,4 +1,6 @@
-﻿namespace JxcLite.Components;
+using JxcLite.Pages.Finance;
+
+namespace JxcLite.Components;
 
 /// <summary>
 /// 通用业务单据表头表格组件。
@@ -6,6 +8,7 @@
 public class BillHeadTable : BaseTable<BillInfo>
 {
     private BillService Service;
+    private FinanceService FinService;
 
     /// <summary>
     /// 取得或设置对账单表头信息。
@@ -16,7 +19,7 @@ public class BillHeadTable : BaseTable<BillInfo>
     {
         await base.OnInitAsync();
         Service = await CreateServiceAsync<BillService>();
-        Table.ShowPager = true;
+        FinService = await CreateServiceAsync<FinanceService>();
         Table.OnQuery = QueryBillsAsync;
         if (!ReadOnly)
         {
@@ -48,30 +51,32 @@ public class BillHeadTable : BaseTable<BillInfo>
             return;
         }
 
-        var model = new FormModel<BillInfo>(this)
+        var data = new AccountBillInfo
+        {
+            AccountId = Account.Id,
+            AccountType = Account.Type,
+            PartnerId = Account.PartnerId
+        };
+        var model = new FormModel<AccountBillInfo>(this)
         {
             Title = "新增对账明细",
-            Info = new FormInfo { Width = 1100, Maximizable = true },
-            //Type = typeof(ListForm), // 表单组件类型
-            Data = new BillInfo(),
-            //OnSaving = async d =>
-            //{
-            //    return true;
-            //},
-            //OnSave = Service.SaveListAsync, // 保存数据的方法
+            Info = new FormInfo { Width = 500 },
+            Type = typeof(AccountBillForm),
+            Data = data,
+            OnSave = d => FinService.SaveAccountBillAsync(new UploadInfo<AccountBillInfo> { Model = d }),
             OnSaved = async d => await RefreshAsync()
         };
         UI.ShowForm(model);
     }
 
-    public void DeleteM() { }// => Table.DeleteM(Service.DeleteInvoicesAsync);
-    public void Edit(BillInfo row) { }// => Table.EditForm(Service.SaveInvoiceAsync, row);
-    public void Delete(BillInfo row) { }// => Table.Delete(Service.DeleteInvoicesAsync, row);
+    public void DeleteM() => Table.DeleteM(infos => FinService.DeleteAccountBillsAsync(Account.Id, infos));
+
+    public void Delete(BillInfo row) => Table.Delete(infos => FinService.DeleteAccountBillsAsync(Account.Id, infos), row);
 
     private Task<PagingResult<BillInfo>> QueryBillsAsync(PagingCriteria criteria)
     {
         criteria.Parameters[nameof(BillQueryType)] = BillQueryType.Account;
-        criteria.SetQuery("BizId", QueryType.Equal, Account.Id);
+        criteria.SetQuery("AccountId", QueryType.Equal, Account.Id);
         return Service.QueryBillsAsync(criteria);
     }
 }

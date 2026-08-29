@@ -17,7 +17,7 @@ static class PaymentExtension
         var model = new JxPayment
         {
             Type = info.Type,
-            PaymentNo = await db.GetMaxAccountNoAsync(info.Type),
+            PaymentNo = await db.GetMaxPaymentNoAsync(info.Type),
             Status = BizStatus.Save,
             PaymentDate = DateTime.Now,
             PartnerId = info.PartnerId,
@@ -47,7 +47,7 @@ static class PaymentExtension
         var model = new JxPayment
         {
             Type = type,
-            PaymentNo = await db.GetMaxAccountNoAsync(type),
+            PaymentNo = await db.GetMaxPaymentNoAsync(type),
             Status = BizStatus.Save,
             PaymentDate = DateTime.Now,
             PartnerId = info.Department,

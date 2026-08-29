@@ -1,4 +1,4 @@
-namespace JxcLite.Pages.ProcessData;
+﻿namespace JxcLite.Pages.ProcessData;
 
 using JxcLite.Services;
 
@@ -15,10 +15,14 @@ public partial class ProcessForm
     /// </summary>
     private string SelectedGoodsId
     {
-        get => Model?.Data?.GoodsId;
+        get
+        {
+            var goods = _goodsList?.FirstOrDefault(g => g.Id == Model?.Data?.GoodsId);
+            return goods != null ? GetGoodsOptionText(goods) : Model?.Data?.GoodsId;
+        }
         set
         {
-            if (Model?.Data != null && Model.Data.GoodsId != value)
+            if (Model?.Data != null && SelectedGoodsId != value)
             {
                 Model.Data.GoodsId = value;
                 _ = OnGoodsChanged(value);
@@ -37,16 +41,10 @@ public partial class ProcessForm
             StateChanged();
             return;
         }
-        var goods = _goodsList.FirstOrDefault(g =>
-        {
-            var spec = g.Name;
-            if (!string.IsNullOrWhiteSpace(g.Model)) spec += $" {g.Model}";
-            if (!string.IsNullOrWhiteSpace(g.Color)) spec += $" {g.Color}";
-            return spec == goodsId;
-        });
+        var goods = _goodsList.FirstOrDefault(g => GetGoodsOptionText(g) == goodsId);
         if (goods != null)
         {
-            Model.Data.GoodsSpec = goodsId;
+            Model.Data.GoodsSpec = GetGoodsSpecText(goods);
             Model.Data.Color ??= goods.Color;
             Model.Data.GoodsId = goods.Id;
         }
@@ -108,12 +106,7 @@ public partial class ProcessForm
         {
             _goodsList = await Service.GetGoodsListAsync();
             foreach (var g in _goodsList)
-            {
-                var spec = g.Name;
-                if (!string.IsNullOrWhiteSpace(g.Model)) spec += $" {g.Model}";
-                if (!string.IsNullOrWhiteSpace(g.Color)) spec += $" {g.Color}";
-                _goodsOptions.Add(spec);
-            }
+                _goodsOptions.Add(GetGoodsOptionText(g));
             await RefreshStockTipAsync();
         }
         catch
@@ -136,6 +129,25 @@ public partial class ProcessForm
                 StateChanged();
             }
         }
+    }
+
+    /// <summary>
+    /// 构造商品下拉选项文本(含编码,保证唯一)。
+    /// </summary>
+    private static string GetGoodsOptionText(JxGoods g)
+    {
+        return $"[{g.Code}] {GetGoodsSpecText(g)}";
+    }
+
+    /// <summary>
+    /// 构造品名规格文本(名称+规格+颜色)。
+    /// </summary>
+    private static string GetGoodsSpecText(JxGoods g)
+    {
+        var spec = g.Name;
+        if (!string.IsNullOrWhiteSpace(g.Model)) spec += $" {g.Model}";
+        if (!string.IsNullOrWhiteSpace(g.Color)) spec += $" {g.Color}";
+        return spec;
     }
 
     private async Task OnRefreshPreview()

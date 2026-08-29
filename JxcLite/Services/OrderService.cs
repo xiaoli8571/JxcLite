@@ -1,4 +1,4 @@
-namespace JxcLite.Services;
+﻿namespace JxcLite.Services;
 
 [WebApi, Service]
 class OrderService(Context context) : ServiceBase(context)
@@ -21,7 +21,7 @@ class OrderService(Context context) : ServiceBase(context)
             info = await db.QueryAsync<OrderInfo>(sql, new { id });
             if (info == null)
             {
-                var maxNo = await db.GetMaxRuleNoAsync<JxOrder>("Order", nameof(JxOrder.OrderNo));
+                var maxNo = await db.GetMaxRuleNoAsync<JxOrder>(AppNoRule.Order, nameof(JxOrder.OrderNo));
                 info = new OrderInfo
                 {
                     OrderNo = maxNo,
@@ -67,7 +67,7 @@ class OrderService(Context context) : ServiceBase(context)
         {
             if (model.IsNew)
             {
-                var maxNo = await db.GetMaxRuleNoAsync<JxOrder>("Order", nameof(JxOrder.OrderNo));
+                var maxNo = await db.GetMaxRuleNoAsync<JxOrder>(AppNoRule.Order, nameof(JxOrder.OrderNo));
                 model.OrderNo = maxNo;
                 model.OrderDate ??= DateTime.Now;
             }

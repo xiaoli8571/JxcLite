@@ -35,6 +35,8 @@ public class AppNoRule
     public const string OtherFee = "OtherFee";
     public const string PaymentIn = "PaymentIn";
     public const string PaymentOut = "PaymentOut";
+    public const string Order = "Order";
+    public const string Process = "Process";
 }
 
 /// <summary>

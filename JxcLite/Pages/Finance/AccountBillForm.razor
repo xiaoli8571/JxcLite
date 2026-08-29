@@ -1,0 +1,14 @@
+﻿@inherits BaseForm<AccountBillInfo>
+
+<AntForm TItem="AccountBillInfo" Form="Model" ShowAction>
+    <AntRow>
+        <DataItem Span="24" Label="选择单据" Required>
+            <SelectBill @bind-Value="@context.BillNo" Type="@SelectBillType" PartnerId="@context.PartnerId" OnChange="OnBillChange" />
+        </DataItem>
+    </AntRow>
+    <AntRow>
+        <DataItem Span="24">
+            <div class="opacitysecondary" style="font-size:12px;">仅显示该伙伴的单据，选中后保存即加入对账明细。</div>
+        </DataItem>
+    </AntRow>
+</AntForm>

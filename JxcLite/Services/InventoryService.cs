@@ -9,8 +9,9 @@ class InventoryService(Context context) : ServiceBase(context)
 select a.*,a.InitialQty
      ,b.ImportQty,b.ImportReturnQty,b.ExportQty,b.ExportReturnQty
      ,p.ProcessUseQty,p.ProcessReturnQty
-     ,ifnull(a.InitialQty,0)+ifnull(b.ImportQty,0)-ifnull(b.ImportReturnQty,0)-ifnull(b.ExportQty,0)+ifnull(b.ExportReturnQty,0)-ifnull(p.ProcessUseQty,0)+ifnull(p.ProcessReturnQty,0) as InventoryQty 
+     ,ifnull(d.StockQty,a.InitialQty) as InventoryQty 
 from JxGoods a
+left join JxInventory d on d.GoodsId=a.Id
 left join (
   select l.GoodsId
         ,sum(case when h.Type='{BillType.Import}' then l.Qty else 0 end) as ImportQty
@@ -51,8 +52,9 @@ select a.Id,a.InitialQty
      ,ifnull(b.ImportQty,0) as ImportQty,ifnull(b.ImportReturnQty,0) as ImportReturnQty
      ,ifnull(b.ExportQty,0) as ExportQty,ifnull(b.ExportReturnQty,0) as ExportReturnQty
      ,ifnull(p.ProcessUseQty,0) as ProcessUseQty,ifnull(p.ProcessReturnQty,0) as ProcessReturnQty
-     ,ifnull(a.InitialQty,0)+ifnull(b.ImportQty,0)-ifnull(b.ImportReturnQty,0)-ifnull(b.ExportQty,0)+ifnull(b.ExportReturnQty,0)-ifnull(p.ProcessUseQty,0)+ifnull(p.ProcessReturnQty,0) as InventoryQty 
+     ,ifnull(d.StockQty,a.InitialQty) as InventoryQty 
 from JxGoods a
+left join JxInventory d on d.GoodsId=a.Id
 left join (
   select l.GoodsId
         ,sum(case when h.Type='{BillType.Import}' then l.Qty else 0 end) as ImportQty

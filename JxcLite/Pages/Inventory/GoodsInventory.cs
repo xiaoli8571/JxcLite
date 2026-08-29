@@ -14,6 +14,14 @@ public class GoodsInventory : BaseTablePage<InventoryInfo>
         await base.OnInitPageAsync();
         Service = await CreateServiceAsync<InventoryService>();
         Table.OnQuery = Service.QueryInventoriesAsync;
+        Table.Column(c => c.InventoryQty).Template((b, r) =>
+        {
+            var qty = (r.InventoryQty ?? 0).ToString("0.##");
+            if (r.SafeQty > 0 && (r.InventoryQty ?? 0) <= r.SafeQty)
+                b.Tag(qty, "red");
+            else
+                b.AddContent(0, qty);
+        });
     }
 
     [Action] public Task Export() => Table.ExportDataAsync();

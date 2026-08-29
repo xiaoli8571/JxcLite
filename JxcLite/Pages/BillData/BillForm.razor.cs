@@ -458,9 +458,11 @@ partial class BillForm
 
     private void OnQtyChange(JxBillList row)
     {
-        if (Model.Data.Type == BillType.Import || Model.Data.Type == BillType.Export)
-            return;
         if (row.Qty == null || row.Qty == 0)
+            return;
+
+        // 没有单价时不联动(保持手工录入金额的习惯)
+        if (row.Price == null)
             return;
 
         row.Amount = row.Price * row.Qty;
@@ -468,9 +470,11 @@ partial class BillForm
         var taxRate = (row.TaxRate ?? 0) * 0.01;
         if (row.IsTax)
         {
-            //税额 = 含税金额 * 税率% / (1 + 税率%)
-            row.TotalAmount = row.Amount / taxRate;
-            row.TaxAmount = row.TotalAmount * taxRate / (1 + taxRate);
+            //税额 = 含税金额 * 税率% / (1 + 税率%)；不含税金额 = 含税金额 - 税额
+            var totalAmount = row.Amount ?? 0;
+            row.TaxAmount = totalAmount * taxRate / (1 + taxRate);
+            row.Amount = totalAmount - row.TaxAmount;
+            row.TotalAmount = totalAmount;
         }
         else
         {

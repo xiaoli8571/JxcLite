@@ -1,4 +1,4 @@
-namespace JxcLite;
+ï»¿namespace JxcLite;
 
 internal static class Program
 {
@@ -29,11 +29,11 @@ internal static class Program
 
     static void HandleException(Exception ex)
     {
-        string errorMsg = "·¢ÉúÁËÒ»¸öÎ´´¦ÀíµÄÒì³£¡£";
+        string errorMsg = "å‘ç”Ÿäº†ä¸€ä¸ªæœªå¤„ç†çš„å¼‚å¸¸ã€‚";
         if (ex != null)
         {
             errorMsg += Environment.NewLine + ex.Message;
-            // ¿ÉÒÔÌí¼Ó¸ü¶à´íÎóĞÅÏ¢
+            // å¯ä»¥æ·»åŠ æ›´å¤šé”™è¯¯ä¿¡æ¯
         }
 
         Dialog.Error(errorMsg);

@@ -1,10 +1,10 @@
-namespace JxcLite.Pages.OrderData;
+﻿namespace JxcLite.Pages.OrderData;
 
 public partial class OrderForm
 {
     private OrderService Service;
     private AntTable<OrderListInfo> table;
-    private List<OrderListInfo> ListItems = [];
+    private new List<OrderListInfo> ListItems = [];
 
     protected override async Task OnInitFormAsync()
     {

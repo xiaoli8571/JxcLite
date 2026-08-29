@@ -1,4 +1,4 @@
-namespace JxcLite.Extensions;
+﻿namespace JxcLite.Extensions;
 
 public static class InventoryExtension
 {
@@ -20,7 +20,9 @@ public static class InventoryExtension
             var inventory = await db.QueryAsync<JxInventory>(d => d.GoodsId == item.GoodsId);
             if (inventory == null)
             {
-                inventory = new JxInventory { GoodsId = item.GoodsId, StockQty = 0 };
+                // 首次建立库存记录时带入商品期初数量
+                var goods = await db.QueryByIdAsync<JxGoods>(item.GoodsId);
+                inventory = new JxInventory { GoodsId = item.GoodsId, StockQty = goods?.InitialQty ?? 0 };
                 await db.SaveAsync(inventory);
             }
             inventory.StockQty = (inventory.StockQty ?? 0) + qtyChange;

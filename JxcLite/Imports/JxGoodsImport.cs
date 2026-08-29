@@ -48,6 +48,10 @@ class JxGoodsImport(ImportContext context) : ImportBase<JxGoods>(context)
         {
             foreach (var item in models)
             {
+                // 按商品编码匹配已有记录:存在则更新,避免重复导入产生重复数据
+                var model = await db.QueryAsync<JxGoods>(d => d.Code == item.Code);
+                if (model != null)
+                    item.Id = model.Id;
                 await db.SaveAsync(item);
             }
         });

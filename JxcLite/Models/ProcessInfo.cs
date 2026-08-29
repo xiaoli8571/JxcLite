@@ -1,4 +1,4 @@
-namespace JxcLite.Models;
+﻿namespace JxcLite.Models;
 
 /// <summary>
 /// 加工单信息类。
@@ -18,7 +18,7 @@ public class ProcessInfo : EntityBase, IAppFlowInfo
     /// <summary>
     /// 取得或设置是否新单。
     /// </summary>
-    public bool IsNew { get; set; }
+    public new bool IsNew { get; set; }
 
     /// <summary>
     /// 取得或设置单据状态。

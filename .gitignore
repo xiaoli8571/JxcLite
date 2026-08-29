@@ -4,3 +4,5 @@ publish/
 *.user
 .vs/
 node_modules/
+logs/
+*.db

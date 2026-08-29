@@ -1,4 +1,4 @@
-namespace JxcLite.Models;
+﻿namespace JxcLite.Models;
 
 /// <summary>
 /// 客户订单信息类。
@@ -7,7 +7,7 @@ public class OrderInfo : EntityBase, IAppFlowInfo
 {
     public bool IsVerify { get; set; }
     public bool IsVerifyForm { get; set; }
-    public bool IsNew { get; set; }
+    public new bool IsNew { get; set; }
 
     /// <summary>
     /// 取得或设置状态。

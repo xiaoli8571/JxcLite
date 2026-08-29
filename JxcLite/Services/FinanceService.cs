@@ -19,7 +19,7 @@ class FinanceService(Context context) : ServiceBase(context)
             {
                 Type = id,
                 Status = BizStatus.Save,
-                AccountNo = await Database.GetMaxAccountNoAsync(id),
+                AccountNo = await db.GetMaxAccountNoAsync(id),
                 AccountDate = DateTime.Now
             };
         });
@@ -31,6 +31,9 @@ class FinanceService(Context context) : ServiceBase(context)
         if (infos == null || infos.Count == 0)
             return Result.Error(Language.SelectOneAtLeast);
 
+        if (infos.Exists(d => d.Status != BizStatus.Save))
+            return Result.Error(AppLanguage.TipOperateSaveRecord);
+
         var database = Database;
         var oldFiles = new List<string>();
         var result = await database.TransactionAsync(Language.Delete, async db =>
@@ -38,6 +41,8 @@ class FinanceService(Context context) : ServiceBase(context)
             foreach (var item in infos)
             {
                 await db.DeleteFilesAsync(item.Id, oldFiles);
+                await db.DeleteFlowAsync(item.Id);
+                await db.DeleteAsync<JxPayment>(d => d.BizId == item.Id);
                 await db.DeleteAsync<JxAccountList>(d => d.HeadId == item.Id);
                 await db.DeleteAsync<JxAccount>(item.Id);
             }
@@ -74,6 +79,9 @@ class FinanceService(Context context) : ServiceBase(context)
         var model = await database.QueryByIdAsync<JxAccount>(info.Model.Id);
         model ??= new JxAccount();
         model.FillModel(info.Model);
+
+        if (!model.IsNew && model.Status != BizStatus.Save)
+            return Result.Error(AppLanguage.TipOperateSaveRecord);
 
         var vr = model.Validate(Context);
         if (!vr.IsValid)
@@ -128,14 +136,23 @@ class FinanceService(Context context) : ServiceBase(context)
         if (infos == null || infos.Count == 0)
             return Result.Error(Language.SelectOneAtLeast);
 
+        if (infos.Exists(d => d.Status != BizStatus.Save))
+            return Result.Error(AppLanguage.TipOperateSaveRecord);
+
         var database = Database;
+        var oldFiles = new List<string>();
         var result = await database.TransactionAsync(Language.Delete, async db =>
         {
             foreach (var item in infos)
             {
+                await db.DeleteFilesAsync(item.Id, oldFiles);
+                await db.DeleteFlowAsync(item.Id);
+                await db.DeleteAsync<JxPayment>(d => d.BizId == item.Id);
                 await db.DeleteAsync<JxOtherFee>(item.Id);
             }
         });
+        if (result.IsValid)
+            AttachFile.DeleteFiles(oldFiles);
         return result;
     }
 
@@ -166,6 +183,9 @@ class FinanceService(Context context) : ServiceBase(context)
         var model = await database.QueryByIdAsync<JxOtherFee>(info.Model.Id);
         model ??= new JxOtherFee();
         model.FillModel(info.Model);
+
+        if (!model.IsNew && model.Status != BizStatus.Save)
+            return Result.Error(AppLanguage.TipOperateSaveRecord);
 
         var vr = model.Validate(Context);
         if (!vr.IsValid)
@@ -225,7 +245,14 @@ class FinanceService(Context context) : ServiceBase(context)
         {
             foreach (var item in infos)
             {
-                await db.DeleteAsync<JxPayment>(item.Id);
+                var model = await db.QueryByIdAsync<JxPayment>(item.Id);
+                if (model == null)
+                    continue;
+
+                if (model.Records != null && model.Records.Count > 0)
+                    throw new Exception($"收付款单[{model.PaymentNo}]已发生收付款记录，不能删除！");
+
+                await db.DeleteAsync(model);
             }
         });
         return result;
@@ -238,6 +265,9 @@ class FinanceService(Context context) : ServiceBase(context)
         model ??= new JxPayment();
         model.FillModel(info.Model);
 
+        if (!model.IsNew && model.Status != BizStatus.Save)
+            return Result.Error(AppLanguage.TipOperateSaveRecord);
+
         var vr = model.Validate(Context);
         if (!vr.IsValid)
             return vr;
@@ -247,10 +277,56 @@ class FinanceService(Context context) : ServiceBase(context)
         {
             if (model.IsNew)
                 model.PaymentNo = await db.GetMaxPaymentNoAsync(model.Type);
+
+            // 服务端重算已收付/剩余金额,防止超收超付
+            var paid = model.Records?.Sum(x => x.Amount ?? 0) ?? 0;
+            if (paid > (model.TotalAmount ?? 0))
+                throw new Exception("已收付金额不能大于总金额！");
+
+            model.PaidAmount = paid;
+            model.RemainAmount = (model.TotalAmount ?? 0) - paid;
             await db.AddFilesAsync(fileFiles, model.Id, key => model.Files = key);
             await db.SaveAsync(model);
             info.Model.Id = model.Id;
         }, info.Model);
+    }
+
+    /// <summary>
+    /// 对账单添加对账明细(关联业务单据)。
+    /// </summary>
+    public async Task<Result> SaveAccountBillAsync(UploadInfo<AccountBillInfo> info)
+    {
+        var model = info.Model;
+        if (string.IsNullOrWhiteSpace(model.AccountId))
+            return Result.Error("请先保存对账单表头！");
+
+        if (string.IsNullOrWhiteSpace(model.BillId))
+            return Result.Error("请选择要关联的单据！");
+
+        var database = Database;
+        if (await database.ExistsAsync<JxAccountList>(d => d.HeadId == model.AccountId && d.BillId == model.BillId))
+            return Result.Error("该单据已在对账明细中！");
+
+        return await database.TransactionAsync(Language.Save, async db =>
+        {
+            await db.SaveAsync(new JxAccountList { HeadId = model.AccountId, BillId = model.BillId });
+        });
+    }
+
+    /// <summary>
+    /// 对账单移除对账明细(仅移除关联关系,不删除业务单据)。
+    /// </summary>
+    public async Task<Result> DeleteAccountBillsAsync(string accountId, List<BillInfo> infos)
+    {
+        if (infos == null || infos.Count == 0)
+            return Result.Error(Language.SelectOneAtLeast);
+
+        var database = Database;
+        return await database.TransactionAsync(Language.Delete, async db =>
+        {
+            foreach (var item in infos)
+                await db.DeleteAsync<JxAccountList>(d => d.HeadId == accountId && d.BillId == item.Id);
+        });
     }
     #endregion
 }

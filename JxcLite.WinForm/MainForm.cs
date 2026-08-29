@@ -1,4 +1,4 @@
-using Known.Cells;
+锘縰sing Known.Cells;
 
 namespace JxcLite;
 
@@ -27,7 +27,7 @@ public partial class MainForm : Form
     {
         base.OnClosing(e);
 
-        var result = Dialog.Confirm("确定退出系统？");
+        var result = Dialog.Confirm("纭畾閫�鍑虹郴缁燂紵");
         if (result == DialogResult.Cancel)
             e.Cancel = true;
         else

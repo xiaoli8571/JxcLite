@@ -23,17 +23,17 @@ where b.CompNo=@CompNo";
             else if (type == BillType.ExportReturn)
             {
                 sql = $@"
-select a.Id as ListId,a.CreateTime,a.StockQty,a.Price,c.BillNo
+select a.Id as ListId,a.CreateTime,a.Qty as StockQty,a.Price,c.BillNo
       ,b.Id,b.Category,b.Code,b.Name,b.Model,b.Producer,b.Unit 
 from JxBillList a, JxGoods b, JxBill c 
 where a.GoodsId=b.Id and a.HeadId=c.Id and a.CompNo=@CompNo and c.Type='{BillType.Export}'";
-            }
-
-            var billId = criteria.GetParameter<string>("BillId");
-            if (!string.IsNullOrWhiteSpace(billId))
-            {
-                // 全部商品模式:不需要按单据过滤(避免引用不存在的 a 表)
-                criteria.SetQuery("BillId", QueryType.Equal, billId);
+                var billId = criteria.GetParameter<string>("BillId");
+                if (!string.IsNullOrWhiteSpace(billId))
+                {
+                    // 销售退货只显示所选关联销货单的出货明细
+                    criteria.Fields["BillId"] = "c.Id";
+                    criteria.SetQuery("BillId", QueryType.Equal, billId);
+                }
             }
         }
 
@@ -61,6 +61,14 @@ where a.GoodsId=b.Id and a.HeadId=c.Id and a.CompNo=@CompNo and c.Type='{BillTyp
             return Result.Error(Language.SelectOneAtLeast);
 
         var database = Database;
+        foreach (var item in infos)
+        {
+            var used = await database.ExistsAsync<JxBillList>(d => d.GoodsId == item.Id)
+                    || await database.ExistsAsync<JxProcess>(d => d.GoodsId == item.Id);
+            if (used)
+                return Result.Error($"商品[{item.Name}]已被业务单据引用，不能删除！");
+        }
+
         var oldFiles = new List<string>();
         var result = await database.TransactionAsync(Language.Delete, async db =>
         {
@@ -85,7 +93,7 @@ where a.GoodsId=b.Id and a.HeadId=c.Id and a.CompNo=@CompNo and c.Type='{BillTyp
         var vr = model.Validate(Context);
         if (vr.IsValid)
         {
-            if (await database.ExistsAsync<JxGoods>(d => d.Id != model.Id && d.Code == model.Code))
+            if (await database.ExistsAsync<JxGoods>(d => d.Id != model.Id && d.Code == model.Code && d.CompNo == CurrentUser.CompNo))
                 vr.AddError($"商品[{model.Code}]已存在！");
         }
         if (!vr.IsValid)
@@ -124,6 +132,15 @@ where a.GoodsId=b.Id and a.HeadId=c.Id and a.CompNo=@CompNo and c.Type='{BillTyp
             return Result.Error(Language.SelectOneAtLeast);
 
         var database = Database;
+        foreach (var item in infos)
+        {
+            var used = await database.ExistsAsync<JxBill>(d => d.PartnerId == item.Id)
+                    || await database.ExistsAsync<JxAccount>(d => d.PartnerId == item.Id)
+                    || await database.ExistsAsync<JxPayment>(d => d.PartnerId == item.Id);
+            if (used)
+                return Result.Error($"商业伙伴[{item.Name}]已被业务单据引用，不能删除！");
+        }
+
         var oldFiles = new List<string>();
         var result = await database.TransactionAsync(Language.Delete, async db =>
         {
@@ -148,7 +165,7 @@ where a.GoodsId=b.Id and a.HeadId=c.Id and a.CompNo=@CompNo and c.Type='{BillTyp
         var vr = model.Validate(Context);
         if (vr.IsValid)
         {
-            if (await database.ExistsAsync<JxPartner>(d => d.Id != model.Id && d.Name == model.Name))
+            if (await database.ExistsAsync<JxPartner>(d => d.Id != model.Id && d.Name == model.Name && d.CompNo == CurrentUser.CompNo))
                 vr.AddError($"{model.Type}名称已存在！");
         }
         if (!vr.IsValid)

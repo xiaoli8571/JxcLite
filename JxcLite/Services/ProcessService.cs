@@ -1,4 +1,4 @@
-namespace JxcLite.Services;
+﻿namespace JxcLite.Services;
 
 [WebApi, Service]
 class ProcessService(Context context) : ServiceBase(context)
@@ -30,7 +30,7 @@ where a.CompNo=@CompNo";
             if (info == null)
             {
                 // 新单:生成内部单号 JG+年月+4位序号
-                var maxNo = await db.GetMaxRuleNoAsync<JxProcess>("Process", nameof(JxProcess.BillNo));
+                var maxNo = await db.GetMaxRuleNoAsync<JxProcess>(AppNoRule.Process, nameof(JxProcess.BillNo));
                 info = new ProcessInfo
                 {
                     Type = "Process",
@@ -78,6 +78,10 @@ where a.CompNo=@CompNo";
         {
             foreach (var item in infos)
             {
+                var model = await db.QueryByIdAsync<JxProcess>(item.Id);
+                if (model != null)
+                    await db.ReverseProcessStockAsync(model);
+
                 await db.DeleteAsync<JxProcess>(item.Id);
             }
         });
@@ -99,12 +103,21 @@ where a.CompNo=@CompNo";
         {
             if (model.IsNew)
             {
-                var maxNo = await db.GetMaxRuleNoAsync<JxProcess>("Process", nameof(JxProcess.BillNo));
+                var maxNo = await db.GetMaxRuleNoAsync<JxProcess>(AppNoRule.Process, nameof(JxProcess.BillNo));
                 model.BillNo = maxNo;
                 model.BillDate ??= DateTime.Now;
             }
+            else
+            {
+                // 重新保存前先冲销旧的库存调整,避免重复扣减
+                var old = await db.QueryByIdAsync<JxProcess>(model.Id);
+                if (old != null)
+                    await db.ReverseProcessStockAsync(old);
+            }
             model.Status ??= BizStatus.Save;
             await db.SaveAsync(model);
+            await db.AdjustProcessStockAsync(model);
+            info.Model.Id = model.Id;
         });
     }
 }

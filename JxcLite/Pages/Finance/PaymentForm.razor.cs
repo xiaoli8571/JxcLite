@@ -31,7 +31,13 @@ public partial class PaymentForm
 
     private void OnAdd()
     {
-        Model.Data.Records.Add(new PaymentRecord());
+        // 预填当天日期;金额预填剩余未收付金额,减少手工录入
+        var remain = Model.Data.RemainAmount ?? Model.Data.TotalAmount;
+        Model.Data.Records.Add(new PaymentRecord
+        {
+            PayDate = DateTime.Now,
+            Amount = remain > 0 ? remain : null
+        });
     }
 
     private void OnDelete(PaymentRecord record)

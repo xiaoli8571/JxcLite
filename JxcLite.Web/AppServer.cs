@@ -21,7 +21,7 @@ static class AppServer
         try
         {
             using var db = Database.Create();
-            var time = DateTime.Parse("2026-07-25 08:00:00");
+            var time = DateTime.Parse("2026-08-28 13:00:00");
             await db.UpdateVersionAsync("UpdateTime", time, UpdateAsync);
         }
         catch (Exception ex)

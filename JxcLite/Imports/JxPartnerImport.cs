@@ -52,6 +52,10 @@ class JxPartnerImport(ImportContext context) : ImportBase<JxPartner>(context)
         {
             foreach (var item in models)
             {
+                // 按类型+名称匹配已有记录:存在则更新,避免重复导入产生重复数据
+                var model = await db.QueryAsync<JxPartner>(d => d.Type == item.Type && d.Name == item.Name);
+                if (model != null)
+                    item.Id = model.Id;
                 await db.SaveAsync(item);
             }
         });

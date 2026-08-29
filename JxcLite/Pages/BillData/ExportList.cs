@@ -40,6 +40,9 @@ public class ExportList : BillList
     {
         var row1 = await Service.GetBillAsync(Type);
         row1.PartnerId = row.PartnerId;
+        row1.PartnerName = row.PartnerName;
+        row1.PartnerAddress = row.PartnerAddress;
+        row1.PartnerContact = row.PartnerContact;
         row1.ContractNo = row.ContractNo;
         row1.InvoiceNo = row.InvoiceNo;
         row1.SettleMode = row.SettleMode;

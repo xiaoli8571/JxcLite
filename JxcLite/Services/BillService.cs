@@ -11,7 +11,15 @@ left join JxBill c on a.RefBillId=c.Id";
 
     public Task<PagingResult<BillInfo>> QueryBillsAsync(PagingCriteria criteria)
     {
-        var sql = $"{BillSQL} where a.CompNo=@CompNo";
+        var sql = BillSQL;
+        var queryType = criteria.GetParameter<BillQueryType>(nameof(BillQueryType));
+        if (queryType == BillQueryType.Account)
+        {
+            // 对账明细:只查询与对账单关联的业务单据
+            sql += " inner join JxAccountList x on x.BillId=a.Id";
+            criteria.Fields["AccountId"] = "x.HeadId";
+        }
+        sql += " where a.CompNo=@CompNo";
         criteria.Fields[nameof(BillInfo.Type)] = "a.Type";
         criteria.Fields[nameof(BillInfo.PartnerId)] = "a.PartnerId";
         return Database.QueryPageAsync<BillInfo>(sql, criteria);
@@ -113,13 +121,20 @@ left join JxBill c on a.RefBillId=c.Id";
         if (!vr.IsValid)
             return vr;
 
+        // 自定义单号查重(自动编号在事务内重新生成,不受影响)
+        if (model.IsNew && !string.IsNullOrWhiteSpace(model.BillNo) && !model.BillNo.StartsWith(GetBillNoPrefix(model.Type)))
+        {
+            if (await database.ExistsAsync<JxBill>(d => d.Id != model.Id && d.BillNo == model.BillNo))
+                return Result.Error($"业务单号[{model.BillNo}]已存在！");
+        }
+
         var fileFiles = info.Files?.GetAttachFiles(nameof(BillInfo.Files), "BillFiles");
         return await database.TransactionAsync(Language.Save, async db =>
         {
             if (model.IsNew)
             {
-                // 从客户订单导入时已填入单据编号,则保留;否则自动生成
-                if (string.IsNullOrWhiteSpace(model.BillNo) || model.BillNo.StartsWith("EX"))
+                // 从客户订单导入时已填入自定义单据编号则保留;自动编号一律在保存时重新生成,避免并发产生重号
+                if (string.IsNullOrWhiteSpace(model.BillNo) || model.BillNo.StartsWith(GetBillNoPrefix(model.Type)))
                     model.BillNo = await db.GetMaxBillNoAsync(model.Type);
                 await db.CreateFlowAsync(BillFlow.GetBizInfo(model));
             }
@@ -131,9 +146,32 @@ left join JxBill c on a.RefBillId=c.Id";
             }
             await db.AddFilesAsync(fileFiles, model.Id, key => model.Files = key);
             await db.SaveAsync(model);
-            //更新表体数据
-            if (info.Model.Lists != null && info.Model.Lists.Count > 0)
+
+            // 退货单校验:行退货数量不能大于原单行数量
+            if ((model.Type == BillType.ImportReturn || model.Type == BillType.ExportReturn) && info.Model.Lists != null)
             {
+                foreach (var item in info.Model.Lists)
+                {
+                    if (string.IsNullOrWhiteSpace(item.RefListId))
+                        continue;
+
+                    var refList = await db.QueryByIdAsync<JxBillList>(item.RefListId);
+                    if (refList != null && (item.Qty ?? 0) > (refList.Qty ?? 0))
+                        throw new Exception($"商品[{item.Name}]退货数量不能大于原单数量({refList.Qty})！");
+                }
+            }
+
+            // 更新表体数据:先冲销旧表体的库存调整并删除旧表体,再保存新表体重新调整,
+            // 避免编辑重存/审核时库存被重复累计
+            if (info.Model.Lists != null)
+            {
+                var oldLists = await db.QueryListAsync<JxBillList>(d => d.HeadId == model.Id);
+                if (oldLists != null && oldLists.Count > 0)
+                {
+                    await db.ReverseStockAsync(model, oldLists);
+                    await db.DeleteAsync<JxBillList>(d => d.HeadId == model.Id);
+                }
+
                 var index = 1;
                 foreach (var item in info.Model.Lists)
                 {
@@ -141,9 +179,22 @@ left join JxBill c on a.RefBillId=c.Id";
                     item.SeqNo = index++;
                     await db.SaveAsync(item);
                 }
-                await db.AdjustStockAsync(model, info.Model.Lists);
+                if (info.Model.Lists.Count > 0)
+                    await db.AdjustStockAsync(model, info.Model.Lists);
             }
             info.Model.Id = model.Id;
         }, info.Model);
+    }
+
+    /// <summary>
+    /// 取得单据类型对应的自动编号前缀。
+    /// </summary>
+    private static string GetBillNoPrefix(string type)
+    {
+        if (type == BillType.Import) return "IM";
+        else if (type == BillType.ImportReturn) return "IR";
+        else if (type == BillType.Export) return "EX";
+        else if (type == BillType.ExportReturn) return "ER";
+        return "";
     }
 }
