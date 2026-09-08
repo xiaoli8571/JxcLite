@@ -95,6 +95,17 @@ where a.CompNo=@CompNo";
         model.FillModel(info.Model);
         model.Type ??= "Process";
 
+        // 投坯数量只存数字，单位单独存字段；数量不是数字直接报错，避免库存静默不扣减
+        var (qty, number, unit) = QtyHelper.SplitQty(model.InputQty);
+        if (!string.IsNullOrWhiteSpace(model.InputQty) && qty <= 0)
+            return Result.Error("投坯数量请填写数字，单位请在数量右侧下拉框选择");
+        if (!string.IsNullOrEmpty(unit))
+        {
+            // 兼容把单位直接写在数量后面的填法(如"350码")
+            model.InputQty = number;
+            model.InputUnit ??= unit;
+        }
+
         var vr = model.Validate(Context);
         if (!vr.IsValid)
             return vr;

@@ -6,6 +6,8 @@ public sealed class AppMigrate
     {
         // 创建表
         await CreateTableAsync(db);
+        // 旧库补齐新增字段(已存在则跳过)
+        await db.AddTableFieldAsync<JxProcess>(x => x.InputUnit);
         // 初始化数据字典(全新环境无系统表时允许跳过,不阻塞后续索引/编号规则初始化)
         try
         {

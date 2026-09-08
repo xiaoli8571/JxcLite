@@ -46,6 +46,7 @@ public partial class ProcessForm
         {
             Model.Data.GoodsSpec = GetGoodsSpecText(goods);
             Model.Data.Color ??= goods.Color;
+            Model.Data.InputUnit ??= goods.Unit;
             Model.Data.GoodsId = goods.Id;
         }
         await RefreshStockTipAsync();

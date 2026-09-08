@@ -67,7 +67,8 @@ static class ProcessExtension
     {
         if (string.IsNullOrWhiteSpace(model?.GoodsId))
             return 0;
-        if (!double.TryParse(model.InputQty, out var qty) || qty == 0)
+        var (qty, _, _) = QtyHelper.SplitQty(model.InputQty);
+        if (qty == 0)
             return 0;
 
         return model.Type == "ProcessReturn" ? qty : -qty;

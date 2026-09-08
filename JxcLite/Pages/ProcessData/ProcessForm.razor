@@ -43,8 +43,9 @@
                         </DataItem>
                     </AntRow>
                     <AntRow>
-                        <DataItem Span="12" Label="投坯数量">
-                            <AntInput @bind-Value="@context.InputQty" Placeholder="保存后自动从库存扣减" />
+                        <DataItem Span="12" Label="投坯数量" Inline>
+                            <AntInput @bind-Value="@context.InputQty" Placeholder="只填数字,保存后自动从库存扣减" Style="flex:1" />
+                            <AntSelectCode @bind-Value="@context.InputUnit" Category="@DicCategory.Unit" Placeholder="单位" Style="width:110px" />
                         </DataItem>
                         <DataItem Span="12" Label="要求交期">
                             <AntDatePicker @bind-Value="@context.DeliveryDate" />
