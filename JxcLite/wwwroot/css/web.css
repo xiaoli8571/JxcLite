@@ -10,6 +10,11 @@ html, body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helv
 
 .ant-table-summary td {font-weight:bold;}
 
+/* Known 全局把弹窗定在 .ant-modal{top:30px}，弹窗右上角关闭 ✕ 与顶栏右侧「字号/全屏」图标(约 y19~33)几乎重叠：
+   连点两下 ✕ 时第二下会落在顶栏图标上，误触「全屏」后整页放大，看着就像加工单关不掉、只能刷新。
+   表单弹窗整体下移到顶栏之外（最大化状态的弹窗不动）。 */
+.kui-form-wrapper .ant-modal:not(.ant-modal-max) {top:72px;}
+
 /* ========== Login Page ========== */
 .jxc-login {
   position:relative;
