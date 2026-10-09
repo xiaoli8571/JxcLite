@@ -1,6 +1,6 @@
 /* ==========================================================
    JxcLite 主题 · 靛蓝 + 石板灰
-   配合 AppConfig 中的 LayoutType.Side 使用。
+   适用于框架默认的 Main 后台布局（顶栏 + 可折叠侧栏）。
    本文件由 KStyleSheet 最后加载，只覆盖表现层，不含业务样式；
    删除本文件即可回到框架默认外观。
    ========================================================== */
@@ -100,71 +100,71 @@ html, body {
 ::-webkit-scrollbar-thumb:hover { background: #b6bfd0; background-clip: content-box; }
 ::-webkit-scrollbar-track { background: transparent; }
 
-/* ---------- 侧栏 ---------- */
-.ks-layout { grid-template-columns: 92px 1fr; }
+/* ---------- 侧栏（Main 布局：可折叠分组） ---------- */
+.ant-layout-sider {
+    background: var(--jxc-surface); border-right: 1px solid var(--jxc-line);
+}
+.ant-layout-sider-light { background: var(--jxc-surface); }
 
-.ks-side {
-    padding: 10px 0 14px;
-    border-right: 1px solid var(--jxc-line);
-    box-shadow: 1px 0 0 rgba(15, 23, 42, .02);
+/* logo 由框架的 CSS 背景图渲染；模板同时输出的 <img> 用相对路径，在非根路由下
+   会 404 并把破图占位符和 alt 文字叠在 logo 上，因此隐藏 <img>。
+   深色下框架的背景规则没带 background-size，这里统一补齐，避免 logo 被按原图撑大。 */
+.kui-layout .kui-logo {
+    border-bottom: 1px solid var(--jxc-line-soft);
+    background-repeat: no-repeat !important;
+    background-position: 5px center !important;
+    background-size: 32px 32px !important;
 }
+.kui-layout .kui-logo img { display: none; }
 
-/* logo 由框架的 CSS 背景图渲染（深色下换用另一张图），这里统一尺寸与位置 */
-.ks-side .kui-logo {
-    height: 52px; width: 100%; margin-bottom: 6px; border-bottom: none;
-    background-repeat: no-repeat !important; background-position: center !important;
-    background-size: 40px 40px !important;
+.kui-layout .ant-menu { background: transparent; border-inline-end: none !important; padding: 6px 8px; }
+.kui-layout .ant-menu-inline { border-inline-end: none !important; }
+.kui-layout .ant-menu .ant-menu-item,
+.kui-layout .ant-menu .ant-menu-submenu-title {
+    height: 40px; line-height: 40px; margin: 2px 0; border-radius: 10px;
+    color: var(--jxc-text-2); transition: background .18s var(--jxc-ease), color .18s var(--jxc-ease);
 }
-
-.ks-side .ant-menu { background: transparent; padding: 0 8px; gap: 2px; }
-.ks-side .ant-menu-submenu-arrow { display: none; }
-.ks-side .ant-menu-item,
-.ks-side .ant-menu-submenu-title {
-    display: flex !important; flex-direction: column; align-items: center; justify-content: center;
-    height: 62px !important; line-height: 1.25 !important; margin: 0 0 2px !important;
-    padding: 0 !important; border-radius: 12px; color: var(--jxc-text-2);
-    transition: background .18s var(--jxc-ease), color .18s var(--jxc-ease);
+.kui-layout .ant-menu .kui-icon .anticon { font-size: 16px; color: var(--jxc-text-3); transition: color .18s var(--jxc-ease); }
+.kui-layout .ant-menu .kui-icon > .icon-name { margin-left: 9px; font-size: 13.5px; }
+.kui-layout .ant-menu .ant-menu-submenu-arrow { color: var(--jxc-text-3); }
+.kui-layout .ant-menu .ant-menu-item:hover,
+.kui-layout .ant-menu .ant-menu-submenu-title:hover { background: #f3f5fb; color: var(--jxc-text); }
+.kui-layout .ant-menu .ant-menu-item:hover .anticon,
+.kui-layout .ant-menu .ant-menu-submenu-title:hover .anticon { color: var(--jxc-primary-hover); }
+/* 只让当前页保持强高亮；父级仅文字/图标变色，避免"点一个亮两个" */
+.kui-layout .ant-menu .ant-menu-submenu-selected > .ant-menu-submenu-title { background: transparent; color: var(--jxc-text); }
+.kui-layout .ant-menu .ant-menu-submenu-selected > .ant-menu-submenu-title .anticon { color: var(--jxc-primary); }
+.kui-layout .ant-menu .ant-menu-item-selected {
+    position: relative; background: var(--jxc-primary-weak); color: var(--jxc-primary); font-weight: 600;
 }
-.ks-side .ant-menu-submenu-title .ant-menu-title-content { margin: 0; width: 100%; }
-.ks-side .ant-menu .kui-icon { flex-direction: column; gap: 4px; align-items: center; width: 100%; }
-.ks-side .ant-menu .kui-icon .anticon { font-size: 19px; color: var(--jxc-text-3); transition: color .18s var(--jxc-ease); }
-.ks-side .ant-menu .kui-icon > .icon-name {
-    margin: 0; font-size: 11.5px; line-height: 15px; letter-spacing: .2px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 76px;
+.kui-layout .ant-menu .ant-menu-item-selected .anticon { color: var(--jxc-primary); }
+.kui-layout .ant-menu .ant-menu-item-selected::before {
+    content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 18px; border-radius: 0 3px 3px 0; background: var(--jxc-primary);
 }
-.ks-side .ant-menu-item:hover,
-.ks-side .ant-menu-submenu-title:hover { background: #f3f5fb; color: var(--jxc-text); }
-.ks-side .ant-menu-item:hover .anticon,
-.ks-side .ant-menu-submenu-title:hover .anticon { color: var(--jxc-primary-hover); }
-.ks-side .ant-menu-item-selected,
-.ks-side .ant-menu-submenu-selected > .ant-menu-submenu-title {
-    background: var(--jxc-primary-weak); color: var(--jxc-primary); font-weight: 600;
-}
-.ks-side .ant-menu-item-selected .anticon,
-.ks-side .ant-menu-submenu-selected > .ant-menu-submenu-title .anticon { color: var(--jxc-primary); }
-
-.ks-avatar { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--jxc-line-soft); width: 100%; }
-.ks-layout .kui-nav-user > span { font-size: 11px; color: var(--jxc-text-3); max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ks-avatar .kui-nav-user { flex-direction: column; gap: 4px; justify-content: center; }
-.ks-avatar .kui-nav-user .ant-avatar { width: 34px; height: 34px; box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--jxc-line); }
-.ks-topbar .kui-nav-user { flex-direction: row; gap: 7px; }
-.ks-topbar .kui-nav-user .ant-avatar { width: 30px; height: 30px; }
-.ks-topbar .kui-nav-user > span { display: none; }
+.ant-layout-sider-collapsed .ant-menu { padding: 6px 0; }
+.ant-layout-sider-collapsed .ant-menu .kui-icon { justify-content: center; }
+.ant-layout-sider-collapsed .ant-menu .kui-icon > .icon-name { display: none; }
+.ant-layout-sider-collapsed .ant-menu .ant-menu-item,
+.ant-layout-sider-collapsed .ant-menu .ant-menu-submenu-title { margin: 2px 8px; padding: 0 !important; }
+.ant-layout-sider-collapsed .ant-menu .ant-menu-item-selected::before { display: none; }
 
 .ant-avatar, .ant-avatar-image { border-radius: 50%; overflow: hidden; }
 .ant-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ---------- 顶栏 ---------- */
-.ks-topbar {
-    height: 58px; padding: 0 18px; border-bottom: 1px solid var(--jxc-line);
-    backdrop-filter: blur(10px);
+.kui-header {
+    height: 54px; line-height: 54px; padding: 0 14px 0 0;
+    background: var(--jxc-surface); border-bottom: 1px solid var(--jxc-line);
 }
-.ks-breadcrumb { color: var(--jxc-text-3); font-size: 14px; gap: 6px; }
-.ks-breadcrumb .ant-breadcrumb { font-size: 14px; color: var(--jxc-text-3); }
-.ks-breadcrumb .ant-breadcrumb a, .ks-breadcrumb .ant-breadcrumb-link { color: var(--jxc-text-2); }
-.ks-breadcrumb .ant-breadcrumb > span:last-child { color: var(--jxc-text); font-weight: 600; }
-.ks-breadcrumb .anticon { color: var(--jxc-text-3); cursor: pointer; transition: color .18s var(--jxc-ease); }
-.ks-breadcrumb .anticon:hover { color: var(--jxc-primary); }
+.kui-header .left .trigger { color: var(--jxc-text-2); transition: color .18s var(--jxc-ease); }
+.kui-header .left .trigger:hover { color: var(--jxc-primary); }
+.kui-header .ant-breadcrumb { font-size: 14px; color: var(--jxc-text-3); }
+.kui-header .ant-breadcrumb a, .kui-header .ant-breadcrumb .ant-breadcrumb-link { color: var(--jxc-text-2); }
+.kui-header .ant-breadcrumb > span:last-child { color: var(--jxc-text); font-weight: 600; }
+.kui-header .ant-breadcrumb-separator { color: var(--jxc-text-3); }
+.kui-header .anticon { transition: color .18s var(--jxc-ease); }
+.kui-header .anticon:hover { color: var(--jxc-primary); }
 
 .kui-nav { gap: 4px; }
 .kui-nav li {
@@ -175,14 +175,8 @@ html, body {
 .kui-nav li .anticon, .kui-nav li .kui-icon { font-size: 16px; }
 
 /* ---------- 内容区 ----------
-   框架按 54px 顶栏算高度，Side 模板顶栏是 58px，这里改用弹性布局自适应 */
-.ks-main .kui-body,
-.ks-main .kui-nav-tabs,
-.ks-main .ant-tabs-content > .kui-body {
-    height: auto; flex: 1 1 auto; min-height: 0; padding: 16px;
-}
-.ks-main .ant-tabs-content > .kui-body { padding: 0; }
-.kui-body > .kui-frame-wrap { height: 100%; }
+   高度仍交给框架的 calc(100vh - 54px)，这里只调整留白 */
+.kui-body { padding: 14px; }
 
 /* 页签栏 */
 .ant-tabs-top.kui-nav-tabs > .ant-tabs-nav {
@@ -442,19 +436,22 @@ html, body {
 :root[data-theme=dark] body { background: var(--jxc-bg); color: var(--jxc-text); }
 :root[data-theme=dark] ::-webkit-scrollbar-thumb { background: #2b3648; background-clip: content-box; }
 :root[data-theme=dark] ::-webkit-scrollbar-thumb:hover { background: #3a4761; background-clip: content-box; }
-:root[data-theme=dark] .ks-side .ant-menu-item:hover,
-:root[data-theme=dark] .ks-side .ant-menu-submenu-title:hover { background: #1a2233; color: var(--jxc-text); }
-:root[data-theme=dark] .ks-side .ant-menu-item-selected,
-:root[data-theme=dark] .ks-side .ant-menu-submenu-selected > .ant-menu-submenu-title { background: #1e2447; color: #a5b4fc; }
-:root[data-theme=dark] .ks-side .ant-menu-item-selected .anticon,
-:root[data-theme=dark] .ks-side .ant-menu-submenu-selected > .ant-menu-submenu-title .anticon { color: #a5b4fc; }
-:root[data-theme=dark] .ks-side .kui-logo img { max-height: 30px; opacity: .92; }
+:root[data-theme=dark] .kui-layout .ant-menu .ant-menu-item:hover,
+:root[data-theme=dark] .kui-layout .ant-menu .ant-menu-submenu-title:hover { background: #1a2233; color: var(--jxc-text); }
+:root[data-theme=dark] .kui-layout .ant-menu .ant-menu-item-selected { background: #1e2447; color: #a5b4fc; }
+:root[data-theme=dark] .kui-layout .ant-menu .ant-menu-item-selected .anticon { color: #a5b4fc; }
+:root[data-theme=dark] .kui-layout .ant-menu .ant-menu-submenu-selected > .ant-menu-submenu-title { background: transparent; color: var(--jxc-text); }
+:root[data-theme=dark] .kui-layout .ant-menu .ant-menu-submenu-selected > .ant-menu-submenu-title .anticon { color: #a5b4fc; }
+:root[data-theme=dark] .kui-layout .kui-logo { background-size: 32px 32px !important; }
+:root[data-theme=dark] .kui-header { background: var(--jxc-surface); }
 :root[data-theme=dark] .kui-nav li:hover,
-:root[data-theme=dark] .ks-breadcrumb .anticon:hover { background: #1a2233; color: #a5b4fc; }
+:root[data-theme=dark] .kui-nav li:hover { background: #1a2233; color: #a5b4fc; }
 :root[data-theme=dark] .kui-toolbar { background: #182032; }
 :root[data-theme=dark] .kui-nav-tabs > .ant-tabs-nav .ant-tabs-tab { background: #121826; border-color: var(--jxc-line) !important; color: var(--jxc-text-2); }
 :root[data-theme=dark] .kui-nav-tabs > .ant-tabs-nav .ant-tabs-tab-active { background: var(--jxc-surface) !important; color: #a5b4fc !important; border-bottom-color: var(--jxc-surface) !important; }
 :root[data-theme=dark] .ant-table-tbody > tr:hover > td { background-color: #1a2138 !important; }
+/* Ant 变量版的行底色不随 data-theme 翻转，深色下必须显式给出，否则未斑马的行为白底深字 */
+:root[data-theme=dark] .ant-table-tbody > tr > td { background-color: var(--jxc-surface); color: var(--jxc-text); }
 :root[data-theme=dark] .kui-striped .ant-table-tbody > tr:nth-child(odd) > td { background-color: #121826; }
 :root[data-theme=dark] .kui-striped .ant-table-tbody > tr:nth-child(odd):hover > td { background-color: #1a2138; }
 :root[data-theme=dark] .ant-btn { background: #1a2233; color: var(--jxc-text-2); border-color: var(--jxc-line); }

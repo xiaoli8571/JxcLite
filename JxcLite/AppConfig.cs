@@ -27,10 +27,7 @@ public static class AppConfig
             option.Type = type;
             option.DefaultPageSize = 20;
             if (type == AppType.Web)
-            {
                 option.IsPlatform = true;
-                option.Layout = LayoutType.Side;
-            }
         });
         services.AddModules();
         services.AddUIConfig();
