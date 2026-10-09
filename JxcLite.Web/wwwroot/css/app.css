@@ -142,12 +142,22 @@ html, body {
     content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
     width: 3px; height: 18px; border-radius: 0 3px 3px 0; background: var(--jxc-primary);
 }
-.ant-layout-sider-collapsed .ant-menu { padding: 6px 0; }
-.ant-layout-sider-collapsed .ant-menu .kui-icon { justify-content: center; }
-.ant-layout-sider-collapsed .ant-menu .kui-icon > .icon-name { display: none; }
+/* 折叠时 Ant 会把菜单类换成 ant-menu-inline-collapsed，其自带规则优先级更高，
+   必须 !important 才能压住，否则 60px 窄栏里仍会挤出菜单文字 */
+.ant-menu-inline-collapsed .kui-icon > .icon-name,
+.ant-layout-sider-collapsed .kui-icon > .icon-name { display: none !important; }
+.ant-menu-inline-collapsed .kui-icon,
+.ant-layout-sider-collapsed .kui-icon { justify-content: center; gap: 0; }
+.ant-menu-inline-collapsed .ant-menu-submenu-arrow,
+.ant-layout-sider-collapsed .ant-menu-submenu-arrow { display: none; }
+.ant-menu-inline-collapsed .ant-menu-item,
+.ant-menu-inline-collapsed .ant-menu-submenu-title,
 .ant-layout-sider-collapsed .ant-menu .ant-menu-item,
 .ant-layout-sider-collapsed .ant-menu .ant-menu-submenu-title { margin: 2px 8px; padding: 0 !important; }
+.ant-menu-inline-collapsed .ant-menu-item-selected::before,
 .ant-layout-sider-collapsed .ant-menu .ant-menu-item-selected::before { display: none; }
+.ant-menu-inline-collapsed,
+.ant-layout-sider-collapsed .ant-menu { padding: 6px 0; }
 
 .ant-avatar, .ant-avatar-image { border-radius: 50%; overflow: hidden; }
 .ant-avatar img { width: 100%; height: 100%; object-fit: cover; }
