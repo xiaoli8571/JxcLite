@@ -26,6 +26,7 @@ public static class AppConfig
             option.Name = AppName;
             option.Type = type;
             option.DefaultPageSize = 20;
+            option.Layout = LayoutType.Side;
             if (type == AppType.Web)
                 option.IsPlatform = true;
         });
