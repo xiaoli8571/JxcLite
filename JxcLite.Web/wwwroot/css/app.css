@@ -111,11 +111,25 @@ html, body {
    深色下框架的背景规则没带 background-size，这里统一补齐，避免 logo 被按原图撑大。 */
 .kui-layout .kui-logo {
     border-bottom: 1px solid var(--jxc-line-soft);
+    display: flex; align-items: center; gap: 9px;
+    padding-left: 14px !important;
     background-repeat: no-repeat !important;
-    background-position: 5px center !important;
-    background-size: 32px 32px !important;
+    background-position: 14px center !important;
+    background-size: 30px 30px !important;
 }
 .kui-layout .kui-logo img { display: none; }
+/* 框架的 .kui-logo 只渲染图片、不含系统名称，这里补上；文案与 AppConfig.AppName 保持一致 */
+.kui-layout .kui-logo::after {
+    content: "东帆进销存ERP系统";
+    font-size: 14.5px; font-weight: 600; letter-spacing: .2px; color: var(--jxc-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* 折叠态：只留居中的 logo，隐藏名称 */
+.ant-layout-sider-collapsed .kui-logo {
+    padding-left: 0 !important;
+    background-position: center !important;
+}
+.ant-layout-sider-collapsed .kui-logo::after { content: none; }
 
 .kui-layout .ant-menu { background: transparent; border-inline-end: none !important; padding: 6px 8px; }
 .kui-layout .ant-menu-inline { border-inline-end: none !important; }
