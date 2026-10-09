@@ -1,4 +1,11 @@
-﻿using JxcLite;
+﻿using System.Globalization;
+using JxcLite;
+
+// Known 在 UserSetting.Language 为空时回退到 CultureInfo.CurrentCulture。服务器是英文
+// locale，会让框架按英文解析界面文案（确认弹窗按钮变成 OK/Cancel），故固定为中文。
+var zhCN = new CultureInfo("zh-CN");
+CultureInfo.DefaultThreadCurrentCulture = zhCN;
+CultureInfo.DefaultThreadCurrentUICulture = zhCN;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
